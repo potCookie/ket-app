@@ -7,6 +7,9 @@ import { useAuthStore } from '../stores/auth.js'
 const router = useRouter()
 const authStore = useAuthStore()
 
+const avatarFileInput = ref(null)
+const uploadingAvatar = ref(false)
+
 const menuItems = [
   { icon: '📊', label: '学习报告', action: 'report' },
   { icon: '🗓️', label: '学习计划', action: 'plan' },
@@ -45,6 +48,36 @@ function cancelLongPress() {
     longPressTimer.value = null
   }
 }
+
+function triggerAvatarUpload() {
+  avatarFileInput.value?.click()
+}
+
+async function onAvatarSelected(e) {
+  const file = e.target.files?.[0]
+  if (!file) return
+
+  if (file.size > 2 * 1024 * 1024) {
+    ElMessage.warning('头像文件不能超过 2MB')
+    return
+  }
+
+  uploadingAvatar.value = true
+  try {
+    await authStore.doUploadAvatar(file)
+    ElMessage.success('头像已更新')
+  } catch (err) {
+    ElMessage.error(err.message || '上传失败')
+  } finally {
+    uploadingAvatar.value = false
+    // Reset file input so same file can be selected again
+    if (avatarFileInput.value) avatarFileInput.value.value = ''
+  }
+}
+
+function userInitial() {
+  return (authStore.user?.nickname || authStore.user?.username || '?').charAt(0).toUpperCase()
+}
 </script>
 
 <template>
@@ -60,14 +93,33 @@ function cancelLongPress() {
       <div class="avatar-section">
         <div
           class="avatar-circle"
+          :class="{ 'has-photo': authStore.user?.avatar }"
+          @click="triggerAvatarUpload"
           @mousedown="startLongPress"
           @mouseup="cancelLongPress"
           @mouseleave="cancelLongPress"
           @touchstart="startLongPress"
           @touchend="cancelLongPress"
         >
-          {{ (authStore.user?.nickname || authStore.user?.username || '?').charAt(0).toUpperCase() }}
+          <img
+            v-if="authStore.user?.avatar"
+            :src="authStore.user.avatar"
+            class="avatar-img"
+            alt="头像"
+          />
+          <span v-else class="avatar-initial">{{ userInitial() }}</span>
+          <div v-if="uploadingAvatar" class="avatar-uploading">
+            <div class="spinner sm white"></div>
+          </div>
+          <div class="avatar-hover-tip">点击更换</div>
         </div>
+        <input
+          ref="avatarFileInput"
+          type="file"
+          accept="image/*"
+          style="display: none"
+          @change="onAvatarSelected"
+        />
         <div class="avatar-name">{{ authStore.user?.nickname || authStore.user?.username || '未登录' }}</div>
         <div class="avatar-grade">
           <span v-if="authStore.user?.role === 'child'">👦 小学员</span>
@@ -138,10 +190,71 @@ function cancelLongPress() {
   border: 3px solid white;
   cursor: pointer;
   transition: transform 0.2s;
+  position: relative;
+  overflow: hidden;
+}
+
+.avatar-circle.has-photo {
+  background: #e0e0e0;
 }
 
 .avatar-circle:active {
   transform: scale(0.95);
+}
+
+.avatar-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
+}
+
+.avatar-initial {
+  z-index: 1;
+}
+
+.avatar-uploading {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: rgba(0,0,0,0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.avatar-hover-tip {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 4px 0;
+  background: rgba(0,0,0,0.5);
+  color: white;
+  font-size: 10px;
+  text-align: center;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.avatar-circle:hover .avatar-hover-tip {
+  opacity: 1;
+}
+
+.spinner.sm {
+  width: 24px;
+  height: 24px;
+  border: 3px solid rgba(255,255,255,0.3);
+  border-top: 3px solid white;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  margin: 0;
+}
+
+.spinner.sm.white { }
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
 }
 
 .avatar-name {

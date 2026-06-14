@@ -11,3 +11,9 @@ export function register(data) {
 export function getMe() {
   return api.get('/auth/me')
 }
+
+export function uploadAvatar(file) {
+  const form = new FormData()
+  form.append('file', file, 'avatar' + file.name.substring(file.name.lastIndexOf('.')))
+  return api.post('/auth/avatar', form)
+}

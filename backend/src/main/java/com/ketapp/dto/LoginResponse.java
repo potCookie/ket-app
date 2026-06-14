@@ -13,4 +13,5 @@ public class LoginResponse {
     private String token;
     private Integer streak;
     private Integer stars;
+    private String avatar;
 }

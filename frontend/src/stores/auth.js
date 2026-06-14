@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
-import { login as apiLogin, register as apiRegister, getMe } from '../api/auth.js'
+import { login as apiLogin, register as apiRegister, getMe, uploadAvatar } from '../api/auth.js'
 
 export const useAuthStore = defineStore('auth', () => {
   const user = ref(null)
@@ -37,6 +37,7 @@ export const useAuthStore = defineStore('auth', () => {
       nickname: data.nickname,
       streak: data.streak || 0,
       stars: data.stars || 0,
+      avatar: data.avatar || null,
     }, data.token)
     return data
   }
@@ -50,6 +51,7 @@ export const useAuthStore = defineStore('auth', () => {
       nickname: data.nickname,
       streak: data.streak || 0,
       stars: data.stars || 0,
+      avatar: data.avatar || null,
     }, data.token)
     return data
   }
@@ -63,9 +65,19 @@ export const useAuthStore = defineStore('auth', () => {
       nickname: data.nickname,
       streak: data.streak || 0,
       stars: data.stars || 0,
+      avatar: data.avatar || null,
     }
     localStorage.setItem('ket_user', JSON.stringify(user.value))
     return user.value
+  }
+
+  async function doUploadAvatar(file) {
+    const url = await uploadAvatar(file)
+    if (user.value) {
+      user.value.avatar = url
+      localStorage.setItem('ket_user', JSON.stringify(user.value))
+    }
+    return url
   }
 
   function clearAuth() {
@@ -88,6 +100,7 @@ export const useAuthStore = defineStore('auth', () => {
     login,
     register,
     fetchMe,
+    doUploadAvatar,
     logout,
     clearAuth,
     setAuth,

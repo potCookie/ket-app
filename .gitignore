@@ -22,6 +22,9 @@ backend/src/main/resources/application.yml
 backend/audio/
 !backend/audio/.gitkeep
 
+# Uploaded avatars
+backend/avatars/
+
 # Logs
 *.log
 backend/logs/
