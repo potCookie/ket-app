@@ -1,0 +1,29 @@
+- generic [ref=e78]:
+  - generic [ref=e79]:
+    - generic [ref=e80] [cursor=pointer]: ←
+    - generic [ref=e81]: 学习计划
+  - generic [ref=e82]:
+    - generic [ref=e83]:
+      - generic [ref=e84]: "35"
+      - generic [ref=e85]: 学习总天数
+    - generic [ref=e86]:
+      - generic [ref=e87]:
+        - generic [ref=e88]: 📅 计划开始日期
+        - textbox [ref=e89]: 2026-06-14
+      - generic [ref=e90]:
+        - generic [ref=e91]: 📅 计划结束日期
+        - textbox [ref=e92]: 2026-07-18
+      - generic [ref=e93]:
+        - generic [ref=e94]: ⏱️ 每日学习时长目标
+        - generic [ref=e95]:
+          - button "25分钟" [ref=e96] [cursor=pointer]
+          - button "35分钟" [ref=e97] [cursor=pointer]
+          - button "45分钟" [ref=e98] [cursor=pointer]
+      - button "💾 保存计划" [ref=e99] [cursor=pointer]
+    - generic [ref=e100]:
+      - generic [ref=e101]: 💡 提示
+      - list [ref=e102]:
+        - listitem [ref=e103]: 修改计划时间后，系统会自动重新计算总天数
+        - listitem [ref=e104]: 已生成的学习内容不会被覆盖
+        - listitem [ref=e105]: 建议每天学习 35 分钟左右
+        - listitem [ref=e106]: 孩子可在首页查看每日任务

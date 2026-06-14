@@ -1,0 +1,51 @@
+- generic [ref=e3]:
+  - generic [ref=e19]:
+    - generic [ref=e20]:
+      - generic [ref=e21]: 🎓
+      - generic [ref=e22]: KET 学习
+    - generic [ref=e40]:
+      - generic [ref=e42]: 📅 2026-06-13 周六
+      - generic [ref=e43]: 第1天
+      - generic [ref=e44]: 第1周 · 入门启动 · 个人信息词汇
+      - generic [ref=e45]:
+        - heading "🌟 今日学习任务" [level=3] [ref=e46]
+        - generic [ref=e47]:
+          - generic [ref=e48]: 📚 词汇
+          - generic [ref=e49]: 📖 阅读
+          - generic [ref=e50]: 🎧 听力
+          - generic [ref=e51]: 🗣️ 口语
+        - generic [ref=e52]: ⏱ 建议学习时长：35分钟
+        - button "🚀 开始学习！" [ref=e53] [cursor=pointer]
+      - generic [ref=e54]: 📦 学习模块
+      - generic [ref=e55]:
+        - generic [ref=e56] [cursor=pointer]:
+          - generic [ref=e57]: 📚
+          - text: 词汇10词
+        - generic [ref=e58] [cursor=pointer]:
+          - generic [ref=e59]: 📖
+          - text: 阅读1篇
+        - generic [ref=e60] [cursor=pointer]:
+          - generic [ref=e61]: 🎧
+          - text: 听力5题
+        - generic [ref=e62] [cursor=pointer]:
+          - generic [ref=e63]: 🗣️
+          - text: 口语录音
+      - generic [ref=e64]:
+        - generic [ref=e65]: 🔥 0
+        - generic [ref=e66]:
+          - generic [ref=e67]: 连续学习天数
+          - generic [ref=e68]: 继续加油，坚持就是胜利！
+      - generic [ref=e69]: 💡 今天是第一天，核心任务：①熟悉10个个人信息词汇；②掌握be动词（am/is/are）；③读懂自我介绍短文；④听力训练。先让孩子玩词汇翻卡，再依次完成各模块。家长可以陪读短文，帮孩子理解意思。
+  - navigation [ref=e26]:
+    - generic [ref=e27] [cursor=pointer]:
+      - generic [ref=e28]: 🏠
+      - text: 首页
+    - generic [ref=e29] [cursor=pointer]:
+      - generic [ref=e30]: 📖
+      - text: 学习
+    - generic [ref=e31] [cursor=pointer]:
+      - generic [ref=e32]: 🏆
+      - text: 成就
+    - generic [ref=e33] [cursor=pointer]:
+      - generic [ref=e34]: 👤
+      - text: 我的

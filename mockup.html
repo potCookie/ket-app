@@ -1,0 +1,579 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KET App 效果图 · 调整方案A</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family: -apple-system, 'PingFang SC', 'Microsoft YaHei', sans-serif; background:#e8ecf1; min-height:100vh; }
+
+  .page-header {
+    background: linear-gradient(135deg, #4ECDC4 0%, #44b4ac 100%);
+    color: white; padding: 18px 24px; text-align:center;
+    font-size: 16px; font-weight: 600;
+    box-shadow: 0 2px 12px rgba(78,205,196,0.3);
+  }
+
+  .device-section {
+    display:flex; gap:32px; justify-content:center; flex-wrap:wrap;
+    padding: 28px 24px; max-width:1200px; margin:0 auto;
+  }
+  .device-label {
+    width:100%; text-align:center; margin-bottom:8px;
+    font-size:13px; color:#78909c; font-weight:500; letter-spacing:1px;
+  }
+
+  /* Phone frame */
+  .phone-frame {
+    width:375px; background:white; border-radius:36px;
+    box-shadow: 0 8px 40px rgba(0,0,0,0.15); overflow:hidden;
+    border: 8px solid #37474f; position:relative;
+  }
+  .phone-notch {
+    width:140px; height:28px; background:#37474f; border-radius:0 0 16px 16px;
+    margin:0 auto; position:absolute; top:0; left:50%; transform:translateX(-50%);
+    z-index:10;
+  }
+  .phone-screen { padding-top:28px; }
+
+  /* Tablet frame */
+  .tablet-frame {
+    width:520px; background:white; border-radius:24px;
+    box-shadow: 0 8px 40px rgba(0,0,0,0.15); overflow:hidden;
+    border: 6px solid #37474f; position:relative;
+  }
+  .tablet-bar {
+    width:80px; height:6px; background:#9e9e9e; border-radius:3px;
+    margin:8px auto 0;
+  }
+  .tablet-screen { }
+
+  /* Common app UI */
+  .status-bar {
+    display:flex; justify-content:space-between; align-items:center;
+    padding:6px 16px 10px; font-size:11px; color:#607d8b;
+    background:white;
+  }
+
+  .app-bar {
+    background: linear-gradient(135deg, #4ECDC4, #44b4ac);
+    color:white; padding:14px 16px; font-size:17px; font-weight:700;
+    display:flex; align-items:center; gap:10px;
+  }
+  .app-bar .back { font-size:20px; cursor:pointer; }
+
+  .tab-bar {
+    display:flex; border-top:0.5px solid #e0e0e0; background:white;
+    position:sticky; bottom:0; z-index:5;
+  }
+  .tab-item {
+    flex:1; text-align:center; padding:8px 0 6px; font-size:10px;
+    color:#90a4ae; cursor:pointer; transition:all 0.2s;
+  }
+  .tab-item.active { color:#4ECDC4; }
+  .tab-icon { font-size:20px; display:block; margin-bottom:2px; }
+
+  .content { padding:16px; padding-bottom:70px; }
+
+  /* ========== 首页 ========== */
+  .date-badge {
+    background:#e0f7fa; color:#00695c; font-size:12px; font-weight:600;
+    padding:4px 12px; border-radius:20px; display:inline-block; margin-bottom:10px;
+  }
+  .day-title { font-size:20px; font-weight:700; color:#263238; margin-bottom:4px; }
+  .day-sub { font-size:13px; color:#78909c; margin-bottom:16px; }
+
+  .task-card {
+    background: linear-gradient(135deg, #4ECDC4 0%, #44b4ac 100%);
+    border-radius:16px; padding:20px; color:white; margin-bottom:16px;
+    box-shadow: 0 4px 16px rgba(78,205,196,0.3);
+  }
+  .task-card h3 { font-size:15px; font-weight:600; margin-bottom:8px; opacity:0.9; }
+  .task-card .modules { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:12px; }
+  .task-card .mod-tag {
+    background:rgba(255,255,255,0.25); padding:4px 10px; border-radius:20px;
+    font-size:12px; backdrop-filter:blur(4px);
+  }
+  .task-card .duration { font-size:13px; opacity:0.8; }
+  .start-btn {
+    background:white; color:#4ECDC4; border:none; border-radius:12px;
+    padding:12px 0; width:100%; font-size:16px; font-weight:700;
+    margin-top:14px; cursor:pointer; box-shadow:0 2px 8px rgba(0,0,0,0.1);
+  }
+
+  .module-grid {
+    display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:16px;
+  }
+  .mod-card {
+    background:white; border:1.5px solid #e0f7fa; border-radius:14px;
+    padding:14px 12px; text-align:center; cursor:pointer; transition:all 0.2s;
+  }
+  .mod-card:active { transform:scale(0.96); }
+  .mod-card .icon { font-size:28px; display:block; margin-bottom:6px; }
+  .mod-card .label { font-size:13px; font-weight:600; color:#37474f; }
+  .mod-card .sub { font-size:11px; color:#90a4ae; margin-top:2px; }
+  .mod-card.done { border-color:#4ECDC4; background:#f1f8e9; }
+
+  .streak-bar {
+    background:#f5f5f5; border-radius:12px; padding:14px 16px;
+    display:flex; align-items:center; gap:12px;
+  }
+  .streak-num { font-size:28px; font-weight:700; color:#FF6B6B; }
+  .streak-label { font-size:12px; color:#78909c; }
+
+  /* ========== 学习页（顺序流程）========== */
+  .learn-progress {
+    display:flex; align-items:center; gap:4px; margin-bottom:16px;
+  }
+  .learn-step {
+    flex:1; text-align:center; font-size:10px; color:#b0bec5; position:relative;
+  }
+  .learn-step .step-dot {
+    width:24px; height:24px; border-radius:50%; background:#f5f5f5;
+    display:flex; align-items:center; justify-content:center; margin:0 auto 4px;
+    font-size:12px; border:2px solid #e0e0e0; transition:all 0.3s;
+  }
+  .learn-step.active .step-dot { background:#4ECDC4; color:white; border-color:#4ECDC4; }
+  .learn-step.done .step-dot { background:#a5d6a7; color:white; border-color:#a5d6a7; }
+  .learn-step.active { color:#4ECDC4; font-weight:600; }
+  .learn-step.done { color:#a5d6a7; }
+  .learn-line {
+    flex:1; height:3px; background:#e0e0e0; margin:0 2px; border-radius:2px;
+    position:relative; top:-10px;
+  }
+  .learn-line.filled { background:#a5d6a7; }
+
+  .learn-mod-title {
+    font-size:16px; font-weight:700; color:#263238; margin-bottom:12px;
+    display:flex; align-items:center; gap:8px;
+  }
+
+  /* 词汇翻卡 */
+  .vocab-card {
+    background:white; border-radius:14px; padding:0; margin-bottom:12px;
+    box-shadow:0 1px 6px rgba(0,0,0,0.06); border:1px solid #f0f0f0;
+    cursor:pointer; overflow:hidden;
+  }
+  .vocab-en {
+    padding:18px 16px; font-size:22px; font-weight:700; color:#263238;
+    text-align:center; background:#fafafa;
+  }
+  .vocab-zh {
+    padding:16px; font-size:15px; color:#4ECDC4; text-align:center;
+    background:#e0f7fa; font-weight:600;
+  }
+  .vocab-eg { padding:10px 16px; font-size:12px; color:#78909c; border-top:0.5px solid #f0f0f0; }
+  .flip-hint { text-align:center; font-size:11px; color:#b0bec5; margin-top:4px; }
+
+  /* 阅读 */
+  .reading-passage {
+    background:#fafafa; border-radius:12px; padding:16px; font-size:14px;
+    line-height:2; color:#37474f; margin-bottom:12px; border:1px solid #e0e0e0;
+  }
+  .trans-btn {
+    background:#e0f7fa; color:#00695c; border:none; border-radius:8px;
+    padding:8px 14px; font-size:13px; cursor:pointer; margin-top:8px;
+  }
+  .trans-text {
+    background:#e8f5e9; border-radius:8px; padding:12px; font-size:13px;
+    color:#33691e; margin-top:8px;
+  }
+
+  /* 听力 */
+  .audio-player {
+    background:#e3f2fd; border-radius:12px; padding:14px 16px;
+    display:flex; align-items:center; gap:12px; margin-bottom:10px;
+  }
+  .play-btn {
+    width:40px; height:40px; border-radius:50%; background:#42a5f5;
+    color:white; border:none; font-size:18px; cursor:pointer; flex-shrink:0;
+  }
+
+  /* 做题选项 */
+  .quiz-opts { display:flex; flex-direction:column; gap:10px; margin-bottom:16px; }
+  .quiz-opt {
+    border:1.5px solid #e0e0e0; border-radius:12px; padding:12px 16px;
+    font-size:14px; cursor:pointer; display:flex; align-items:center; gap:10px;
+    transition:all 0.15s;
+  }
+  .quiz-opt.selected { border-color:#4ECDC4; background:#e0f7fa; }
+  .quiz-opt.correct { border-color:#66bb6a; background:#e8f5e9; }
+  .quiz-opt .opt-letter {
+    width:28px; height:28px; border-radius:50%; background:#f5f5f5;
+    display:flex; align-items:center; justify-content:center; font-size:13px;
+    font-weight:600; color:#78909c; flex-shrink:0;
+  }
+  .quiz-opt.selected .opt-letter { background:#4ECDC4; color:white; }
+
+  .next-btn {
+    background:#4ECDC4; color:white; border:none; border-radius:12px;
+    padding:12px 0; width:100%; font-size:15px; font-weight:700;
+    cursor:pointer; margin-top:8px;
+  }
+  .next-btn:disabled { background:#e0e0e0; color:#b0bec5; cursor:default; }
+
+  /* ========== 成就页 ========== */
+  .star-hero {
+    background: linear-gradient(135deg, #FF6B6B, #ff8a80);
+    border-radius:16px; padding:24px; text-align:center; color:white;
+    margin-bottom:16px; box-shadow:0 4px 16px rgba(255,107,107,0.3);
+  }
+  .star-hero-num { font-size:48px; font-weight:800; }
+  .star-hero-label { font-size:14px; opacity:0.9; }
+  .star-hero-row { font-size:24px; margin-top:8px; }
+
+  .badge-grid {
+    display:grid; grid-template-columns:repeat(4,1fr); gap:10px; margin-bottom:16px;
+  }
+  .badge-item {
+    width:100%; aspect-ratio:1; border-radius:50%; background:#f5f5f5;
+    display:flex; align-items:center; justify-content:center; font-size:28px;
+    border:2px solid #e0e0e0; flex-direction:column;
+  }
+  .badge-item.earned { border-color:#FF6B6B; background:#fff3e0; }
+  .badge-item .badge-name { font-size:8px; color:#b0bec5; margin-top:2px; }
+  .badge-item.earned .badge-name { color:#FF6B6B; }
+
+  .achieve-stats {
+    background:white; border-radius:12px; padding:16px; margin-bottom:16px;
+    box-shadow:0 1px 4px rgba(0,0,0,0.04);
+  }
+  .achieve-stats-row {
+    display:flex; justify-content:space-between; padding:10px 0;
+    border-bottom:0.5px solid #f0f0f0; font-size:13px; color:#455a64;
+  }
+  .achieve-stats-row:last-child { border-bottom:none; }
+  .achieve-stats-val { font-weight:700; color:#263238; }
+
+  /* ========== 我的页 ========== */
+  .avatar-section {
+    text-align:center; padding:24px 16px 16px;
+    background:linear-gradient(180deg, #e0f7fa 0%, white 100%);
+  }
+  .avatar-circle {
+    width:72px; height:72px; border-radius:50%;
+    background:linear-gradient(135deg, #4ECDC4, #44b4ac);
+    color:white; font-size:28px; display:flex; align-items:center; justify-content:center;
+    margin:0 auto 8px; box-shadow:0 4px 12px rgba(78,205,196,0.3);
+  }
+  .avatar-name { font-size:18px; font-weight:700; color:#263238; }
+  .avatar-grade { font-size:12px; color:#78909c; }
+
+  .menu-list { padding:0 16px; margin-top:16px; }
+  .menu-item {
+    display:flex; justify-content:space-between; align-items:center;
+    padding:14px 0; border-bottom:0.5px solid #f0f0f0; font-size:14px; color:#455a64;
+    cursor:pointer;
+  }
+
+  /* Tablet specific */
+  .tablet-frame .content { padding:20px; }
+  .tablet-frame .module-grid { grid-template-columns:1fr 1fr 1fr; }
+  .tablet-frame .badge-grid { grid-template-columns:repeat(6,1fr); }
+
+  .spec-label {
+    text-align:center; font-size:11px; color:#b0bec5; margin-top:24px;
+    padding-top:16px; border-top:1px dashed #e0e0e0;
+  }
+</style>
+</head>
+<body>
+
+<div class="page-header">🎓 KET 学习 App · 效果图预览（方案A：4个Tab）</div>
+
+<!-- ============================================= -->
+<!-- ========== 手机视图 ========== -->
+<!-- ============================================= -->
+<div class="device-section">
+  <div style="width:100%"><div class="device-label">📱 手机视图 (375×812) — 4个Tab：首页 / 学习 / 成就 / 我的</div></div>
+
+  <!-- ===== 手机：首页 ===== -->
+  <div class="phone-frame">
+    <div class="phone-notch"></div>
+    <div class="phone-screen">
+      <div class="status-bar"><span>9:41</span><span>📶 100%</span></div>
+      <div class="app-bar"><span>🎓</span> KET 学习</div>
+      <div class="content">
+        <div class="date-badge">📅 2026年6月13日 周六</div>
+        <div class="day-title">第1周 · 第1天</div>
+        <div class="day-sub">入门启动 · 个人信息词汇</div>
+
+        <div class="task-card">
+          <h3>🌟 今日学习任务</h3>
+          <div class="modules">
+            <span class="mod-tag">📚 词汇</span>
+            <span class="mod-tag">📖 阅读</span>
+            <span class="mod-tag">🎧 听力</span>
+            <span class="mod-tag">🗣️ 口语</span>
+          </div>
+          <div class="duration">⏱ 建议学习时长：35分钟</div>
+          <button class="start-btn">🚀 开始学习！</button>
+        </div>
+
+        <div class="section-title" style="font-size:15px;font-weight:700;color:#37474f;margin-bottom:10px;display:flex;align-items:center;gap:6px;">📦 学习模块</div>
+        <div class="module-grid">
+          <div class="mod-card done"><span class="icon">📚</span><span class="label">词汇</span><span class="sub">10词</span></div>
+          <div class="mod-card"><span class="icon">📖</span><span class="label">阅读</span><span class="sub">1篇</span></div>
+          <div class="mod-card"><span class="icon">🎧</span><span class="label">听力</span><span class="sub">5题</span></div>
+          <div class="mod-card"><span class="icon">🗣️</span><span class="label">口语</span><span class="sub">录音</span></div>
+        </div>
+
+        <div class="streak-bar">
+          <div class="streak-num">🔥 1</div>
+          <div><div class="streak-label">连续学习天数</div><div style="font-size:11px;color:#b0bec5">继续加油！</div></div>
+        </div>
+      </div>
+      <div class="tab-bar">
+        <div class="tab-item active"><span class="tab-icon">🏠</span>首页</div>
+        <div class="tab-item"><span class="tab-icon">📖</span>学习</div>
+        <div class="tab-item"><span class="tab-icon">🏆</span>成就</div>
+        <div class="tab-item"><span class="tab-icon">👤</span>我的</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== 手机：学习页（顺序流程）===== -->
+  <div class="phone-frame">
+    <div class="phone-notch"></div>
+    <div class="phone-screen">
+      <div class="status-bar"><span>9:43</span><span>📶 100%</span></div>
+      <div class="app-bar"><span class="back">←</span> 今日学习</div>
+      <div class="content">
+        <!-- 进度条 -->
+        <div class="learn-progress">
+          <div class="learn-step done"><div class="step-dot">✓</div>词汇</div>
+          <div class="learn-line filled"></div>
+          <div class="learn-step active"><div class="step-dot">2</div>阅读</div>
+          <div class="learn-line"></div>
+          <div class="learn-step"><div class="step-dot">3</div>听力</div>
+          <div class="learn-line"></div>
+          <div class="learn-step"><div class="step-dot">4</div>口语</div>
+          <div class="learn-line"></div>
+          <div class="learn-step"><div class="step-dot">5</div>语法</div>
+        </div>
+
+        <div class="learn-mod-title">📖 阅读理解</div>
+
+        <div class="reading-passage">
+          Hello! My name is Lily. I am eight years old. I live at No.5 School Road with my mum, dad and little brother...
+        </div>
+        <button class="trans-btn">🌐 查看中文翻译</button>
+        <div class="trans-text" style="display:block">你好！我叫莉莉。我八岁了。我和妈妈、爸爸还有弟弟住在学堂路5号...</div>
+
+        <div style="margin-top:16px;font-size:14px;font-weight:600;color:#37474f;">📝 理解题</div>
+        <div style="font-size:13px;color:#78909c;margin-bottom:10px;">How old is Lily?</div>
+        <div class="quiz-opts">
+          <div class="quiz-opt selected"><span class="opt-letter">A</span> Six</div>
+          <div class="quiz-opt"><span class="opt-letter">B</span> Eight</div>
+          <div class="quiz-opt"><span class="opt-letter">C</span> Nine</div>
+        </div>
+
+        <button class="next-btn">✔ 提交并继续 →</button>
+      </div>
+      <div class="tab-bar">
+        <div class="tab-item"><span class="tab-icon">🏠</span>首页</div>
+        <div class="tab-item active"><span class="tab-icon">📖</span>学习</div>
+        <div class="tab-item"><span class="tab-icon">🏆</span>成就</div>
+        <div class="tab-item"><span class="tab-icon">👤</span>我的</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================= -->
+<!-- ===== 手机：成就页 + 我的页 ===== -->
+<!-- ============================================= -->
+<div class="device-section" style="margin-top:0">
+  <!-- ===== 手机：成就页 ===== -->
+  <div class="phone-frame">
+    <div class="phone-notch"></div>
+    <div class="phone-screen">
+      <div class="status-bar"><span>9:45</span><span>📶 100%</span></div>
+      <div class="app-bar"><span>🏆</span> 我的成就</div>
+      <div class="content">
+        <div class="star-hero">
+          <div class="star-hero-num">⭐ 12</div>
+          <div class="star-hero-label">累计获得星星</div>
+          <div class="star-hero-row">🎉 🌟 ⭐</div>
+        </div>
+
+        <div style="font-size:14px;font-weight:700;color:#37474f;margin-bottom:10px;">🏅 勋章墙</div>
+        <div class="badge-grid">
+          <div class="badge-item earned"><span>🌟</span><div class="badge-name">打卡7天</div></div>
+          <div class="badge-item"><span>🔒</span><div class="badge-name">打卡30天</div></div>
+          <div class="badge-item"><span>🔒</span><div class="badge-name">全勤勋章</div></div>
+          <div class="badge-item"><span>🔒</span><div class="badge-name">满分学霸</div></div>
+        </div>
+
+        <div class="achieve-stats">
+          <div class="achieve-stats-row"><span>✅ 已完成天数</span><span class="achieve-stats-val">3 / 35</span></div>
+          <div class="achieve-stats-row"><span>📝 做题正确率</span><span class="achieve-stats-val">85%</span></div>
+          <div class="achieve-stats-row"><span>🔥 最长连续打卡</span><span class="achieve-stats-val">3天</span></div>
+          <div class="achieve-stats-row"><span>📚 已学词汇</span><span class="achieve-stats-val">30个</span></div>
+        </div>
+      </div>
+      <div class="tab-bar">
+        <div class="tab-item"><span class="tab-icon">🏠</span>首页</div>
+        <div class="tab-item"><span class="tab-icon">📖</span>学习</div>
+        <div class="tab-item active"><span class="tab-icon">🏆</span>成就</div>
+        <div class="tab-item"><span class="tab-icon">👤</span>我的</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== 手机：我的页 ===== -->
+  <div class="phone-frame">
+    <div class="phone-notch"></div>
+    <div class="phone-screen">
+      <div class="status-bar"><span>9:48</span><span>📶 100%</span></div>
+      <div class="app-bar"><span>👤</span> 我的</div>
+      <div class="content" style="padding-bottom:70px;">
+        <div class="avatar-section">
+          <div class="avatar-circle">🐱</div>
+          <div class="avatar-name">小明</div>
+          <div class="avatar-grade">二年级升三年级 · KET备考</div>
+        </div>
+
+        <div class="menu-list">
+          <div class="menu-item"><span>📊 学习报告</span><span style="color:#b0bec5;">›</span></div>
+          <div class="menu-item"><span>👨‍👩‍👧 家长入口</span><span style="color:#b0bec5;">›</span></div>
+          <div class="menu-item"><span>🔔 消息通知</span><span style="color:#b0bec5;">›</span></div>
+          <div class="menu-item"><span>⚙️ 设置</span><span style="color:#b0bec5;">›</span></div>
+          <div class="menu-item"><span>💡 使用帮助</span><span style="color:#b0bec5;">›</span></div>
+        </div>
+      </div>
+      <div class="tab-bar">
+        <div class="tab-item"><span class="tab-icon">🏠</span>首页</div>
+        <div class="tab-item"><span class="tab-icon">📖</span>学习</div>
+        <div class="tab-item"><span class="tab-icon">🏆</span>成就</div>
+        <div class="tab-item active"><span class="tab-icon">👤</span>我的</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================= -->
+<!-- ========== 平板视图 ========== -->
+<!-- ============================================= -->
+<div class="device-section">
+  <div style="width:100%"><div class="device-label">📱 平板视图（520px）— 适配iPad Mini / 安卓平板</div></div>
+
+  <!-- ===== 平板：首页 ===== -->
+  <div class="tablet-frame">
+    <div class="tablet-bar"></div>
+    <div class="tablet-screen">
+      <div class="status-bar"><span>9:41</span><span>📶 Wi-Fi · 100%</span></div>
+      <div class="app-bar"><span>🎓</span> KET 学习 · 首页</div>
+      <div class="content">
+        <div style="display:flex;gap:16px;">
+          <div style="flex:1;">
+            <div class="date-badge">📅 2026年6月13日 周六</div>
+            <div class="day-title">第1周 · 第1天</div>
+            <div class="day-sub">入门启动 · 个人信息词汇</div>
+            <div class="task-card" style="margin-top:12px;">
+              <h3>🌟 今日学习任务</h3>
+              <div class="modules">
+                <span class="mod-tag">📚 词汇</span>
+                <span class="mod-tag">📖 阅读</span>
+                <span class="mod-tag">🎧 听力</span>
+                <span class="mod-tag">🗣️ 口语</span>
+              </div>
+              <div class="duration">⏱ 建议学习时长：35分钟</div>
+              <button class="start-btn">🚀 开始学习！</button>
+            </div>
+          </div>
+          <div style="flex:1;">
+            <div class="streak-bar" style="margin-bottom:16px;">
+              <div class="streak-num">🔥 1</div>
+              <div><div class="streak-label">连续学习天数</div><div style="font-size:11px;color:#b0bec5">继续加油！</div></div>
+            </div>
+            <div style="font-size:15px;font-weight:700;color:#37474f;margin-bottom:10px;">📦 学习模块</div>
+            <div class="module-grid" style="grid-template-columns:1fr 1fr;">
+              <div class="mod-card done"><span class="icon">📚</span><span class="label">词汇 10词</span></div>
+              <div class="mod-card"><span class="icon">📖</span><span class="label">阅读 1篇</span></div>
+              <div class="mod-card"><span class="icon">🎧</span><span class="label">听力 5题</span></div>
+              <div class="mod-card"><span class="icon">🗣️</span><span class="label">口语录音</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="tab-bar">
+        <div class="tab-item active"><span class="tab-icon">🏠</span>首页</div>
+        <div class="tab-item"><span class="tab-icon">📖</span>学习</div>
+        <div class="tab-item"><span class="tab-icon">🏆</span>成就</div>
+        <div class="tab-item"><span class="tab-icon">👤</span>我的</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== 平板：学习页（双栏）===== -->
+  <div class="tablet-frame">
+    <div class="tablet-bar"></div>
+    <div class="tablet-screen">
+      <div class="status-bar"><span>9:43</span><span>📶 Wi-Fi · 100%</span></div>
+      <div class="app-bar"><span class="back" style="cursor:pointer">←</span> 今日学习</div>
+      <div class="content">
+        <!-- 进度条 -->
+        <div class="learn-progress" style="margin-bottom:12px;">
+          <div class="learn-step done"><div class="step-dot">✓</div>词汇</div>
+          <div class="learn-line filled"></div>
+          <div class="learn-step active"><div class="step-dot">2</div>阅读</div>
+          <div class="learn-line"></div>
+          <div class="learn-step"><div class="step-dot">3</div>听力</div>
+          <div class="learn-line"></div>
+          <div class="learn-step"><div class="step-dot">4</div>口语</div>
+          <div class="learn-line"></div>
+          <div class="learn-step"><div class="step-dot">5</div>语法</div>
+        </div>
+
+        <div style="display:flex;gap:16px;">
+          <!-- 左：词汇 -->
+          <div style="flex:1;">
+            <div class="learn-mod-title">📚 词汇学习</div>
+            <div class="flip-hint">👆 点击卡片翻面查看中文</div>
+            <div class="vocab-card" style="margin-bottom:10px;">
+              <div class="vocab-en">name</div>
+              <div class="vocab-zh" style="display:block">名字</div>
+              <div class="vocab-eg">📝 My name is Lily.</div>
+            </div>
+            <div class="vocab-card" style="margin-bottom:10px;">
+              <div class="vocab-en">family</div>
+              <div class="vocab-zh">家庭</div>
+              <div class="vocab-eg">📝 I have a happy family.</div>
+            </div>
+          </div>
+          <!-- 右：阅读 -->
+          <div style="flex:1;">
+            <div class="learn-mod-title">📖 阅读理解</div>
+            <div class="reading-passage" style="font-size:13px;">
+              Hello! My name is Lily. I am eight years old. I live at No.5 School Road...
+            </div>
+            <button class="trans-btn">🌐 查看中文翻译</button>
+            <div class="trans-text" style="display:block;font-size:12px;">你好！我叫莉莉。我八岁了...</div>
+
+            <div style="margin-top:12px;font-size:13px;font-weight:600;color:#37474f;">📝 理解题</div>
+            <div style="font-size:12px;color:#78909c;margin-bottom:8px;">How old is Lily?</div>
+            <div class="quiz-opts">
+              <div class="quiz-opt"><span class="opt-letter">A</span> Six</div>
+              <div class="quiz-opt selected"><span class="opt-letter">B</span> Eight</div>
+              <div class="quiz-opt"><span class="opt-letter">C</span> Nine</div>
+            </div>
+          </div>
+        </div>
+        <button class="next-btn" style="margin-top:16px;">✔ 提交并继续 → 听力</button>
+      </div>
+      <div class="tab-bar">
+        <div class="tab-item"><span class="tab-icon">🏠</span>首页</div>
+        <div class="tab-item active"><span class="tab-icon">📖</span>学习</div>
+        <div class="tab-item"><span class="tab-icon">🏆</span>成就</div>
+        <div class="tab-item"><span class="tab-icon">👤</span>我的</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="spec-label">以上为静态效果图 · 实际开发将使用 Vue 3 + Spring Boot 实现交互功能 · 按方案A调整为4个Tab</div>
+
+</body>
+</html>

@@ -1,0 +1,39 @@
+- generic [ref=e3]:
+  - generic [ref=e188]:
+    - generic [ref=e189]:
+      - generic [ref=e190]: 🏆
+      - generic [ref=e191]: 我的成就
+    - generic [ref=e192]:
+      - generic [ref=e193]:
+        - generic [ref=e194]: ⭐ 0
+        - generic [ref=e195]: 累计获得星星
+        - generic [ref=e196]: 🎉 🌟 ⭐ 🇫🇷 🏅
+      - generic [ref=e197]: 🏅 勋章墙
+      - generic [ref=e198]: 还没有获得勋章，开始学习吧！
+      - generic [ref=e199]: 📊 学习统计
+      - generic [ref=e200]:
+        - generic [ref=e201]:
+          - generic [ref=e202]: ✅ 已完成天数
+          - generic [ref=e203]: 0 / 35
+        - generic [ref=e204]:
+          - generic [ref=e205]: 📝 做题正确率
+          - generic [ref=e206]: 0%
+        - generic [ref=e207]:
+          - generic [ref=e208]: 🔥 最长连续打卡
+          - generic [ref=e209]: 0天
+        - generic [ref=e210]:
+          - generic [ref=e211]: 📚 已学词汇
+          - generic [ref=e212]: 0个
+  - navigation [ref=e11]:
+    - generic [ref=e12] [cursor=pointer]:
+      - generic [ref=e13]: 🏠
+      - text: 首页
+    - generic [ref=e14] [cursor=pointer]:
+      - generic [ref=e15]: 📖
+      - text: 学习
+    - generic [ref=e16] [cursor=pointer]:
+      - generic [ref=e17]: 🏆
+      - text: 成就
+    - generic [ref=e18] [cursor=pointer]:
+      - generic [ref=e19]: 👤
+      - text: 我的

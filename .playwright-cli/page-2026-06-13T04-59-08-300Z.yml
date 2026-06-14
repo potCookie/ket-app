@@ -1,0 +1,46 @@
+- generic [ref=e3]:
+  - generic [ref=e213]:
+    - generic [ref=e214]:
+      - generic [ref=e215]: 👤
+      - generic [ref=e216]: 我的
+    - generic [ref=e217]:
+      - generic [ref=e218]:
+        - generic [ref=e219] [cursor=pointer]: X
+        - generic [ref=e220]: xiaoming
+        - generic [ref=e221]: 👦 小学员
+        - generic [ref=e222]: 长按头像 3 秒进入家长模式
+      - generic [ref=e223]:
+        - generic [ref=e224] [cursor=pointer]:
+          - generic [ref=e225]: 📊
+          - generic [ref=e226]: 学习报告
+          - generic [ref=e227]: ›
+        - generic [ref=e228] [cursor=pointer]:
+          - generic [ref=e229]: 🗓️
+          - generic [ref=e230]: 学习计划
+          - generic [ref=e231]: ›
+        - generic [ref=e232] [cursor=pointer]:
+          - generic [ref=e233]: 👨‍👩‍👧
+          - generic [ref=e234]: 家长入口
+          - generic [ref=e235]: ›
+        - generic [ref=e236] [cursor=pointer]:
+          - generic [ref=e237]: 🔔
+          - generic [ref=e238]: 消息通知
+          - generic [ref=e239]: ›
+        - generic [ref=e240] [cursor=pointer]:
+          - generic [ref=e241]: ⚙️
+          - generic [ref=e242]: 设置
+          - generic [ref=e243]: ›
+      - button "🚪 退出登录" [ref=e245] [cursor=pointer]
+  - navigation [ref=e11]:
+    - generic [ref=e12] [cursor=pointer]:
+      - generic [ref=e13]: 🏠
+      - text: 首页
+    - generic [ref=e14] [cursor=pointer]:
+      - generic [ref=e15]: 📖
+      - text: 学习
+    - generic [ref=e16] [cursor=pointer]:
+      - generic [ref=e17]: 🏆
+      - text: 成就
+    - generic [ref=e18] [cursor=pointer]:
+      - generic [ref=e19]: 👤
+      - text: 我的

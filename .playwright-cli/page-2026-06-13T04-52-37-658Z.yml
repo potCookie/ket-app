@@ -1,0 +1,43 @@
+- generic [ref=e107]:
+  - generic [ref=e108]:
+    - heading "确认计划" [level=1] [ref=e150]
+    - paragraph [ref=e114]: 一切准备就绪
+  - generic [ref=e151]:
+    - generic [ref=e152]:
+      - generic [ref=e153]:
+        - generic [ref=e154]: 👶 孩子
+        - generic [ref=e155]: xiaoming
+      - generic [ref=e156]:
+        - generic [ref=e157]: 📚 年级
+        - generic [ref=e158]: 二升三 · KET
+      - generic [ref=e159]:
+        - generic [ref=e160]: 📅 时间
+        - generic [ref=e161]: 2026-06-14 ~ 2026-07-19
+      - generic [ref=e162]:
+        - generic [ref=e163]: 📊 总计
+        - generic [ref=e164]:
+          - strong [ref=e165]: "36"
+          - text: 天
+      - generic [ref=e166]:
+        - generic [ref=e167]: ⏱️ 每日
+        - generic [ref=e168]: 35分钟
+    - generic [ref=e169]: 📋 前 5 天计划预览
+    - generic [ref=e170]:
+      - generic [ref=e171]:
+        - generic [ref=e172]: Day 1
+        - generic [ref=e173]: 个人信息词汇
+      - generic [ref=e174]:
+        - generic [ref=e175]: Day 2
+        - generic [ref=e176]: 家庭与朋友
+      - generic [ref=e177]:
+        - generic [ref=e178]: Day 3
+        - generic [ref=e179]: 学校生活
+      - generic [ref=e180]:
+        - generic [ref=e181]: Day 4
+        - generic [ref=e182]: 日常活动
+      - generic [ref=e183]:
+        - generic [ref=e184]: Day 5
+        - generic [ref=e185]: 食物与饮料
+  - generic [ref=e131]:
+    - button "← 上一步" [ref=e149] [cursor=pointer]
+    - button "✅ 确认并开始" [ref=e186] [cursor=pointer]

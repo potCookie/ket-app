@@ -1,0 +1,44 @@
+# ========================================
+# KET Learning App - Git Ignore
+# ========================================
+
+# --- Backend ---
+
+# Build output
+backend/target/
+
+# IDE files
+.idea/
+*.iml
+.vscode/
+*.swp
+*.swo
+*~
+
+# Sensitive config (contains API keys, DB passwords, JWT secret)
+backend/src/main/resources/application.yml
+
+# Uploaded audio files
+backend/audio/
+!backend/audio/.gitkeep
+
+# Logs
+*.log
+backend/logs/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# --- Frontend ---
+
+# Node modules
+frontend/node_modules/
+
+# Vite build output
+frontend/dist/
+
+# Env files (if any)
+frontend/.env
+frontend/.env.local
+frontend/.env.*.local

@@ -1,0 +1,51 @@
+- generic [ref=e3]:
+  - generic [ref=e4]:
+    - generic [ref=e5]:
+      - generic [ref=e6]: 🎓
+      - generic [ref=e7]: KET 学习
+    - generic [ref=e8]:
+      - generic [ref=e10]: 📅 2026-06-13 周六
+      - generic [ref=e11]: 第1天
+      - generic [ref=e12]: 第1周 · 入门启动 · 个人信息词汇
+      - generic [ref=e13]:
+        - heading "🌟 今日学习任务" [level=3] [ref=e14]
+        - generic [ref=e15]:
+          - generic [ref=e16]: 📚 词汇
+          - generic [ref=e17]: 📖 阅读
+          - generic [ref=e18]: 🎧 听力
+          - generic [ref=e19]: 🗣️ 口语
+        - generic [ref=e20]: ⏱ 建议学习时长：35分钟
+        - button "🚀 开始学习！" [ref=e21] [cursor=pointer]
+      - generic [ref=e22]: 📦 学习模块
+      - generic [ref=e23]:
+        - generic [ref=e24] [cursor=pointer]:
+          - generic [ref=e25]: 📚
+          - text: 词汇10词
+        - generic [ref=e26] [cursor=pointer]:
+          - generic [ref=e27]: 📖
+          - text: 阅读1篇
+        - generic [ref=e28] [cursor=pointer]:
+          - generic [ref=e29]: 🎧
+          - text: 听力5题
+        - generic [ref=e30] [cursor=pointer]:
+          - generic [ref=e31]: 🗣️
+          - text: 口语录音
+      - generic [ref=e32]:
+        - generic [ref=e33]: 🔥 1
+        - generic [ref=e34]:
+          - generic [ref=e35]: 连续学习天数
+          - generic [ref=e36]: 继续加油，坚持就是胜利！
+      - generic [ref=e37]: 💡 今天是第一天，核心就两个事：1、学会用 am/is/are 介绍自己；2、认识常用的个人信息词汇。鼓励孩子大声朗读！
+  - navigation [ref=e38]:
+    - generic [ref=e39] [cursor=pointer]:
+      - generic [ref=e40]: 🏠
+      - text: 首页
+    - generic [ref=e41] [cursor=pointer]:
+      - generic [ref=e42]: 📖
+      - text: 学习
+    - generic [ref=e43] [cursor=pointer]:
+      - generic [ref=e44]: 🏆
+      - text: 成就
+    - generic [ref=e45] [cursor=pointer]:
+      - generic [ref=e46]: 👤
+      - text: 我的

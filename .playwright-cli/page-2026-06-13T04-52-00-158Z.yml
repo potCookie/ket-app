@@ -1,0 +1,25 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e3]:
+    - generic [ref=e19]:
+      - generic [ref=e20]:
+        - generic [ref=e21]: 🎓
+        - generic [ref=e22]: KET 学习
+      - generic [ref=e23]:
+        - paragraph [ref=e24]: 📭 暂无今日任务
+        - paragraph [ref=e25]: 请稍后再来看看
+    - navigation [ref=e26]:
+      - generic [ref=e27] [cursor=pointer]:
+        - generic [ref=e28]: 🏠
+        - text: 首页
+      - generic [ref=e29] [cursor=pointer]:
+        - generic [ref=e30]: 📖
+        - text: 学习
+      - generic [ref=e31] [cursor=pointer]:
+        - generic [ref=e32]: 🏆
+        - text: 成就
+      - generic [ref=e33] [cursor=pointer]:
+        - generic [ref=e34]: 👤
+        - text: 我的
+  - alert [ref=e35]:
+    - img [ref=e37]
+    - paragraph [ref=e39]: 登录成功

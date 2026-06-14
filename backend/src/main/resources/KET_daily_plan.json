@@ -1,0 +1,138 @@
+{
+  "meta": {
+    "title": "KET 35天学习计划",
+    "total_days": 1,
+    "start_date": "2026-06-13"
+  },
+  "days": {
+    "2026-06-13": {
+      "week": 1,
+      "day": 1,
+      "weekday": "周六",
+      "theme": "入门启动 · 个人信息词汇",
+      "duration": "35分钟",
+      "vocab": {
+        "group": "个人信息",
+        "words": [
+          { "en": "name", "zh": "名字", "eg": "My name is Lily." },
+          { "en": "age", "zh": "年龄", "eg": "I am eight years old." },
+          { "en": "birthday", "zh": "生日", "eg": "My birthday is in June." },
+          { "en": "family", "zh": "家庭", "eg": "I have a happy family." },
+          { "en": "father", "zh": "爸爸", "eg": "My father is tall." },
+          { "en": "mother", "zh": "妈妈", "eg": "My mother is kind." },
+          { "en": "brother", "zh": "兄弟", "eg": "I have a little brother." },
+          { "en": "sister", "zh": "姐妹", "eg": "She is my sister." },
+          { "en": "friend", "zh": "朋友", "eg": "Tom is my best friend." },
+          { "en": "school", "zh": "学校", "eg": "I go to school every day." }
+        ]
+      },
+      "grammar": {
+        "point": "be动词（am / is / are）",
+        "explanation": "be动词表示'是'。I 用 am，he/she/it 用 is，we/you/they 用 are。",
+        "exercises": [
+          "I ___ a student.",
+          "She ___ my teacher.",
+          "They ___ happy.",
+          "Tom and I ___ friends.",
+          "My mother ___ a doctor."
+        ],
+        "answers": ["am", "is", "are", "are", "is"],
+        "analysis": [
+          "I 搭配 am",
+          "She 第三人称单数，用 is",
+          "They 是复数，用 are",
+          "Tom and I = we，用 are",
+          "My mother = she，用 is"
+        ]
+      },
+      "reading": {
+        "passage": {
+          "title": "All About Me",
+          "text": "Hello! My name is Lily. I am eight years old. I have a happy family. My father is a teacher and my mother is a nurse. I have a little brother. His name is Tom. He is five years old. We play together every day. I like reading books and drawing pictures. I go to school from Monday to Friday. My school is big and beautiful. I like my school very much.",
+          "translation": "你好！我叫莉莉。我八岁了。我有一个幸福的家庭。我爸爸是老师，我妈妈是护士。我有一个弟弟。他叫汤姆。他五岁了。我们每天一起玩。我喜欢读书和画画。我周一到周五上学。我的学校又大又漂亮。我非常喜欢我的学校。"
+        },
+        "questions": [
+          {
+            "q": "How old is Lily?",
+            "options": ["A. Six", "B. Eight", "C. Nine"],
+            "answer": "B"
+          },
+          {
+            "q": "What does Lily's mother do?",
+            "options": ["A. Teacher", "B. Doctor", "C. Nurse"],
+            "answer": "C"
+          },
+          {
+            "q": "How old is Tom?",
+            "options": ["A. Five", "B. Six", "C. Four"],
+            "answer": "A"
+          }
+        ]
+      },
+      "listening": {
+        "questions": [
+          {
+            "id": 1,
+            "scenario": "What time does Tom get up?",
+            "translation": "Tom几点起床？",
+            "audio_text": "Tom gets up at seven o'clock in the morning.",
+            "options": ["A. 6:30", "B. 7:00", "C. 7:30"],
+            "answer": "B",
+            "key_word": "seven o'clock"
+          },
+          {
+            "id": 2,
+            "scenario": "What does Amy like to eat?",
+            "translation": "Amy喜欢吃什么？",
+            "audio_text": "Amy likes apples and bananas.",
+            "options": ["A. Apples and oranges", "B. Apples and bananas", "C. Bananas and grapes"],
+            "answer": "B",
+            "key_word": "apples and bananas"
+          },
+          {
+            "id": 3,
+            "scenario": "How does Jack go to school?",
+            "translation": "Jack怎么去上学？",
+            "audio_text": "Jack goes to school by bus every day.",
+            "options": ["A. By car", "B. On foot", "C. By bus"],
+            "answer": "C",
+            "key_word": "by bus"
+          },
+          {
+            "id": 4,
+            "scenario": "What color is Lucy's bag?",
+            "translation": "Lucy的包是什么颜色？",
+            "audio_text": "Lucy has a red school bag.",
+            "options": ["A. Blue", "B. Red", "C. Yellow"],
+            "answer": "B",
+            "key_word": "red"
+          },
+          {
+            "id": 5,
+            "scenario": "Where is the cat?",
+            "translation": "猫在哪里？",
+            "audio_text": "The cat is under the table.",
+            "options": ["A. On the table", "B. Under the table", "C. Behind the door"],
+            "answer": "B",
+            "key_word": "under the table"
+          }
+        ]
+      },
+      "speaking": {
+        "template": "Hello! My name is _____. I am _____ years old. I have a _____ family. My father is a _____ and my mother is a _____. I like _____ and _____. I go to school from _____ to _____.",
+        "phrases": [
+          { "en": "My name is ...", "zh": "我叫……" },
+          { "en": "I am ... years old", "zh": "我……岁了" },
+          { "en": "I have a ... family", "zh": "我有一个……的家庭" },
+          { "en": "I like ...", "zh": "我喜欢……" },
+          { "en": "I go to school ...", "zh": "我……上学" }
+        ]
+      },
+      "writing": {
+        "prompt": "Write 3-5 sentences about yourself. Include: your name, age, family, and what you like.",
+        "sample": "My name is Lily. I am eight years old. I have a happy family. I like reading books. I go to school every day."
+      },
+      "parent_note": "今天是第一天，核心任务：①熟悉10个个人信息词汇；②掌握be动词（am/is/are）；③读懂自我介绍短文；④听力训练。先让孩子玩词汇翻卡，再依次完成各模块。家长可以陪读短文，帮孩子理解意思。"
+    }
+  }
+}

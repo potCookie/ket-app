@@ -1,0 +1,24 @@
+- generic [ref=e107]:
+  - generic [ref=e108]:
+    - heading "计划时间" [level=1] [ref=e133]
+    - paragraph [ref=e114]: 设定学习计划时间
+  - generic [ref=e134]:
+    - generic [ref=e135]:
+      - generic [ref=e136]: 📅 计划开始日期
+      - textbox [ref=e137]: 2026-06-14
+    - generic [ref=e138]:
+      - generic [ref=e139]: 📅 计划结束日期
+      - textbox [ref=e140]: 2026-07-19
+    - generic [ref=e141]:
+      - text: 共
+      - strong [ref=e142]: "36"
+      - text: 天学习计划
+    - generic [ref=e143]:
+      - generic [ref=e144]: ⏱️ 每日学习时长目标
+      - generic [ref=e145]:
+        - button "25分钟" [ref=e146] [cursor=pointer]
+        - button "35分钟" [ref=e147] [cursor=pointer]
+        - button "45分钟" [ref=e148] [cursor=pointer]
+  - generic [ref=e131]:
+    - button "← 上一步" [ref=e149] [cursor=pointer]
+    - button "下一步 →" [active] [ref=e132] [cursor=pointer]
