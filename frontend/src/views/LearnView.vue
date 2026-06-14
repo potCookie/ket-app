@@ -1,6 +1,6 @@
 <script setup>
 import { ref, computed, watch, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRouter, useRoute } from 'vue-router'
 import { useTaskStore } from '../stores/task.js'
 import VocabCard from '../components/VocabCard.vue'
 import ReadingModule from '../components/ReadingModule.vue'
@@ -11,6 +11,7 @@ import ProgressBar from '../components/ProgressBar.vue'
 import StarAnimation from '../components/StarAnimation.vue'
 
 const router = useRouter()
+const route = useRoute()
 const taskStore = useTaskStore()
 
 // --- State ---
@@ -36,8 +37,15 @@ watch(() => taskStore.currentStep, (step) => {
 })
 
 // On mount: fetch task data + start first module
+const historicalDate = ref('')
+
 onMounted(async () => {
-  if (!taskStore.todayData) {
+  const dateParam = route.query.date
+  if (dateParam) {
+    // Loading a historical date from the records page
+    historicalDate.value = dateParam
+    await taskStore.fetchTaskByDate(dateParam)
+  } else if (!taskStore.todayData) {
     await taskStore.fetchTodayTask()
   }
   // In review mode, load previous answers
@@ -116,7 +124,7 @@ async function finalizeAll() {
 }
 
 function backHome() {
-  router.push('/home')
+  router.push(historicalDate.value ? '/history' : '/home')
 }
 
 // --- Computed ---
@@ -136,13 +144,13 @@ const currentStepIndex = computed(() =>
     <div class="page-container no-select" v-if="!allDone">
       <!-- 顶部导航 -->
       <div class="learn-app-bar">
-        <span class="back-btn" @click="router.push('/home')">←</span>
-        <span>今日学习</span>
+        <span class="back-btn" @click="router.push(historicalDate ? '/history' : '/home')">←</span>
+        <span>{{ historicalDate ? '历史回顾' : '今日学习' }}</span>
       </div>
 
       <div class="animate-fade-in">
-        <!-- 进度条 -->
-        <ProgressBar />
+        <!-- 进度条 (skip for history review) -->
+        <ProgressBar v-if="!historicalDate" />
 
         <!-- 模块标题 -->
         <div class="learn-mod-title">
@@ -150,7 +158,10 @@ const currentStepIndex = computed(() =>
         </div>
 
         <!-- 回顾模式提示 -->
-        <div v-if="isReview" class="review-banner">
+        <div v-if="historicalDate" class="review-banner">
+          📖 正在查看 {{ historicalDate }} 的学习内容。不会重复记录。
+        </div>
+        <div v-else-if="isReview" class="review-banner">
           📖 今日学习已完成，你可以自由回顾学习内容。不会重复记录。
         </div>
 

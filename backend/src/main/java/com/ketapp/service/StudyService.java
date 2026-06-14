@@ -13,7 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.List;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -100,6 +100,40 @@ public class StudyService {
                 new LambdaQueryWrapper<StudyLog>()
                         .eq(StudyLog::getUserId, userId)
                         .eq(StudyLog::getTaskDate, taskDate));
+    }
+
+    /**
+     * Get all studied dates for a user (distinct dates with study logs).
+     */
+    public List<Map<String, Object>> getHistory(Long userId) {
+        List<StudyLog> logs = studyLogMapper.selectList(
+                new LambdaQueryWrapper<StudyLog>()
+                        .eq(StudyLog::getUserId, userId)
+                        .orderByDesc(StudyLog::getTaskDate));
+
+        // Group by date, summarize
+        Map<LocalDate, List<StudyLog>> byDate = new java.util.LinkedHashMap<>();
+        for (StudyLog log : logs) {
+            byDate.computeIfAbsent(log.getTaskDate(), k -> new ArrayList<>()).add(log);
+        }
+
+        List<Map<String, Object>> history = new ArrayList<>();
+        for (Map.Entry<LocalDate, List<StudyLog>> entry : byDate.entrySet()) {
+            LocalDate date = entry.getKey();
+            List<StudyLog> dayLogs = entry.getValue();
+
+            Map<String, Object> summary = new java.util.LinkedHashMap<>();
+            summary.put("date", date.toString());
+            summary.put("modules", dayLogs.size());
+            summary.put("completed", (int) dayLogs.stream()
+                    .filter(l -> l.getFinishedAt() != null).count());
+            summary.put("checkedIn", dayLogs.stream()
+                    .anyMatch(l -> l.getCheckedIn() != null && l.getCheckedIn()));
+            summary.put("stars", dayLogs.stream()
+                    .mapToInt(l -> l.getStarsEarned() != null ? l.getStarsEarned() : 0).sum());
+            history.add(summary);
+        }
+        return history;
     }
 
     /**

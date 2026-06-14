@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
-import { getTodayTask, getTaskDetail } from '../api/task.js'
-import { startModule, finishModule, submitQuiz, checkIn, getTodayLogs, uploadRecording, getTodayRecordings } from '../api/study.js'
+import { getTodayTask, getTaskDetail, getTaskByDate } from '../api/task.js'
+import { startModule, finishModule, submitQuiz, checkIn, getTodayLogs, uploadRecording, getTodayRecordings, getStudyLogs } from '../api/study.js'
 import { getStats, getBadges } from '../api/stats.js'
 
 export const useTaskStore = defineStore('task', () => {
@@ -105,6 +105,58 @@ export const useTaskStore = defineStore('task', () => {
           writing: parseJsonField(detail, 'writingData'),
           parent_note: detail.parentNote,
         }
+      }
+    } catch (e) {
+      taskError.value = e.message
+    } finally {
+      taskLoading.value = false
+    }
+  }
+
+  /** Load task + study logs for a specific date (for history review) */
+  async function fetchTaskByDate(dateStr) {
+    taskLoading.value = true
+    taskError.value = null
+    reviewMode.value = true
+    completedSteps.value = []
+    todayRecordings.value = []
+
+    try {
+      // 1. Get task summary for this date
+      const overview = await getTaskByDate(dateStr)
+      todayOverview.value = overview
+
+      // 2. Get full task content
+      if (overview.taskId) {
+        const detail = await getTaskDetail(overview.taskId)
+        todayData.value = {
+          taskId: detail.id,
+          date: detail.taskDate,
+          week: detail.week,
+          day: detail.day,
+          weekday: detail.weekday,
+          theme: detail.theme,
+          duration: detail.duration,
+          parentNote: detail.parentNote,
+          vocab: parseJsonField(detail, 'vocabData'),
+          grammar: parseJsonField(detail, 'grammarData'),
+          reading: parseJsonField(detail, 'readingData'),
+          listening: parseJsonField(detail, 'listeningData'),
+          speaking: parseJsonField(detail, 'speakingData'),
+          writing: parseJsonField(detail, 'writingData'),
+          parent_note: detail.parentNote,
+        }
+      }
+
+      // 3. Load study logs to get previous answers
+      const logs = await getStudyLogs(dateStr)
+      studyLogs.value = logs || []
+
+      // 4. Load recordings for this date
+      try {
+        todayRecordings.value = await getTodayRecordings(dateStr) || []
+      } catch {
+        todayRecordings.value = []
       }
     } catch (e) {
       taskError.value = e.message
@@ -244,6 +296,7 @@ export const useTaskStore = defineStore('task', () => {
     isStepDone,
     allStepsDone,
     fetchTodayTask,
+    fetchTaskByDate,
     fetchStats,
     startModuleApi,
     finishModuleApi,

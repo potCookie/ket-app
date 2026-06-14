@@ -54,4 +54,25 @@ public class StudyController {
         Long userId = (Long) request.getAttribute("userId");
         return Result.ok(studyService.getTodayLogs(userId, LocalDate.now()));
     }
+
+    /**
+     * Get study logs for any date.
+     * GET /api/study/logs?date=2026-06-14
+     */
+    @GetMapping("/logs")
+    public Result<java.util.List<StudyLog>> getLogs(@RequestParam String date,
+                                                     HttpServletRequest request) {
+        Long userId = (Long) request.getAttribute("userId");
+        return Result.ok(studyService.getTodayLogs(userId, LocalDate.parse(date)));
+    }
+
+    /**
+     * Get all studied dates with summary.
+     * GET /api/study/history
+     */
+    @GetMapping("/history")
+    public Result<java.util.List<java.util.Map<String, Object>>> getHistory(HttpServletRequest request) {
+        Long userId = (Long) request.getAttribute("userId");
+        return Result.ok(studyService.getHistory(userId));
+    }
 }

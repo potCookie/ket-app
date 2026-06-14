@@ -31,10 +31,16 @@ const routes = [
     meta: { tabIndex: 2, title: '成就', requiresAuth: true }
   },
   {
+    path: '/history',
+    name: 'History',
+    component: () => import('../views/HistoryView.vue'),
+    meta: { tabIndex: 3, title: '学习记录', requiresAuth: true }
+  },
+  {
     path: '/profile',
     name: 'Profile',
     component: () => import('../views/ProfileView.vue'),
-    meta: { tabIndex: 3, title: '我的', requiresAuth: true }
+    meta: { tabIndex: 4, title: '我的', requiresAuth: true }
   },
   {
     path: '/parent',

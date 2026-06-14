@@ -30,3 +30,11 @@ export function uploadRecording(date, file) {
 export function getTodayRecordings(date) {
   return api.get('/recording/today', { params: { date } })
 }
+
+export function getStudyHistory() {
+  return api.get('/study/history')
+}
+
+export function getStudyLogs(date) {
+  return api.get('/study/logs', { params: { date } })
+}

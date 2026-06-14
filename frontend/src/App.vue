@@ -10,6 +10,7 @@ const taskStore = useTaskStore()
 const tabs = [
   { path: '/home', icon: '🏠', label: '首页' },
   { path: '/learn', icon: '📖', label: '学习' },
+  { path: '/history', icon: '📋', label: '记录' },
   { path: '/achieve', icon: '🏆', label: '成就' },
   { path: '/profile', icon: '👤', label: '我的' },
 ]
