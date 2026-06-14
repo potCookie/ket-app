@@ -38,6 +38,9 @@ Thumbs.db
 # Node modules
 frontend/node_modules/
 
+# Playwright test artifacts
+.playwright-cli/
+
 # Vite build output
 frontend/dist/
 
