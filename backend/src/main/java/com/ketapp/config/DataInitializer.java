@@ -14,7 +14,7 @@ import java.sql.Statement;
 import java.time.LocalDate;
 
 /**
- * On startup: runs DB migrations, then generates initial content if needed.
+ * 启动时：执行数据库迁移，然后根据需要生成初始内容。
  */
 @Slf4j
 @Component
@@ -27,16 +27,16 @@ public class DataInitializer implements CommandLineRunner {
 
     @Override
     public void run(String... args) {
-        // Run migrations
+        // 执行数据库迁移
         runMigrations();
 
         long count = taskMapper.selectCount(null);
         if (count > 0) {
-            log.info("Database already has {} tasks, skipping initial generation.", count);
+            log.info("数据库已存在 {} 条任务，跳过初始生成。", count);
             return;
         }
 
-        log.info("=== First startup: generating today + next day ===");
+        log.info("=== 首次启动：生成今天和明天的内容 ===");
         LocalDate today = LocalDate.now();
 
         for (int day = 1; day <= 3; day++) {
@@ -44,16 +44,16 @@ public class DataInitializer implements CommandLineRunner {
             try {
                 contentGenerator.ensureToday(date, day);
             } catch (Exception e) {
-                log.warn("Failed to generate day {}: {}", day, e.getMessage());
+                log.warn("生成第{}天内容失败: {}", day, e.getMessage());
             }
         }
-        log.info("=== Initial generation complete. Daily scheduler will handle the rest. ===");
+        log.info("=== 初始生成完成。每日计划任务将处理其余内容。 ===");
     }
 
     private void runMigrations() {
         try (Connection conn = dataSource.getConnection();
              Statement stmt = conn.createStatement()) {
-            // Ensure recording table exists
+            // 确保recording表存在
             try {
                 stmt.execute("CREATE TABLE IF NOT EXISTS recording (" +
                         "id BIGINT PRIMARY KEY AUTO_INCREMENT," +
@@ -66,22 +66,22 @@ public class DataInitializer implements CommandLineRunner {
                         "INDEX idx_rec_user_task (user_id, task_date)" +
                         ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
             } catch (Exception e1) {
-                log.debug("Migration: recording table may already exist: {}", e1.getMessage());
+                log.debug("迁移：recording表可能已存在: {}", e1.getMessage());
             }
 
-            // Add quiz_answers column
+            // 添加quiz_answers列
             try {
-                stmt.execute("ALTER TABLE study_log ADD COLUMN IF NOT EXISTS quiz_answers TEXT COMMENT 'JSON: user selected answer indices'");
+                stmt.execute("ALTER TABLE study_log ADD COLUMN IF NOT EXISTS quiz_answers TEXT COMMENT 'JSON: 用户选择的答案索引'");
             } catch (Exception e1) {
                 try {
-                    stmt.execute("ALTER TABLE study_log ADD COLUMN quiz_answers TEXT COMMENT 'JSON: user selected answer indices'");
+                    stmt.execute("ALTER TABLE study_log ADD COLUMN quiz_answers TEXT COMMENT 'JSON: 用户选择的答案索引'");
                 } catch (Exception e2) {
-                    log.debug("Migration: quiz_answers column may already exist: {}", e2.getMessage());
+                    log.debug("迁移：quiz_answers列可能已存在: {}", e2.getMessage());
                 }
             }
-            log.info("DB migration completed.");
+            log.info("数据库迁移完成。");
         } catch (Exception e) {
-            log.debug("Migration note: {}", e.getMessage());
+            log.debug("迁移说明: {}", e.getMessage());
         }
     }
 }
