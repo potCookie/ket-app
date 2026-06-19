@@ -29,11 +29,11 @@ public class RecordingService {
     private String audioDir;
 
     /**
-     * Upload a recording blob for a user on a specific date.
-     * Returns the file URL.
+     * 上传录音文件
+     * 返回文件URL
      */
     public String upload(Long userId, LocalDate taskDate, MultipartFile file) {
-        log.info("Upload request: userId={}, date={}, fileSize={}, fileName={}",
+        log.info("收到录音上传请求: userId={}, date={}, 文件大小={}, 文件名={}",
                 userId, taskDate, file.getSize(), file.getOriginalFilename());
 
         if (file.isEmpty()) {
@@ -41,24 +41,24 @@ public class RecordingService {
         }
 
         try {
-            // Ensure recordings directory exists (use absolute path)
+            // 确保录音目录存在（使用绝对路径）
             Path recDir = Paths.get(audioDir).toAbsolutePath().resolve("recordings");
-            log.info("Recording directory: {}", recDir);
+            log.info("录音目录: {}", recDir);
             Files.createDirectories(recDir);
 
-            // Generate unique filename
+            // 生成唯一文件名
             String filename = UUID.randomUUID().toString() + ".webm";
             Path targetPath = recDir.resolve(filename);
 
-            // Save file bytes
+            // 保存文件字节
             byte[] bytes = file.getBytes();
             Files.write(targetPath, bytes);
-            log.info("Recording saved: {} ({} bytes)", targetPath, bytes.length);
+            log.info("录音已保存: {} ({} 字节)", targetPath, bytes.length);
 
-            // Build URL
+            // 构建URL
             String url = "/api/recording/play/" + filename;
 
-            // Save to DB
+            // 保存到数据库
             Recording rec = new Recording();
             rec.setUserId(userId);
             rec.setTaskDate(taskDate);
@@ -66,15 +66,15 @@ public class RecordingService {
             rec.setFilePath(targetPath.toString());
             rec.setFileUrl(url);
             recordingMapper.insert(rec);
-            log.info("Recording record saved to DB: id={}", rec.getId());
+            log.info("录音记录已保存到数据库: id={}", rec.getId());
 
             return url;
         } catch (IOException e) {
-            log.error("Failed to save recording file: {}", e.getMessage(), e);
+            log.error("保存录音文件失败: {}", e.getMessage(), e);
             throw new RuntimeException("录音保存失败: " + e.getMessage());
         } catch (Exception e) {
-            log.error("Failed to save recording record: {}", e.getMessage(), e);
-            // Clean up the file if it was written but DB insert failed
+            log.error("保存录音记录失败: {}", e.getMessage(), e);
+            // 如果文件已写入但数据库插入失败，清理文件
             throw new RuntimeException("录音记录保存失败: " + e.getMessage());
         }
     }
