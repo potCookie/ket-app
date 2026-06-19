@@ -225,4 +225,69 @@ public class AdminController {
 
         return Result.ok("Study records cleared. Tasks kept intact.");
     }
+
+    // ==================== Task Generation Recovery ====================
+
+    /**
+     * Get list of failed tasks from scheduled generation.
+     * GET /api/admin/failed-tasks
+     */
+    @GetMapping("/failed-tasks")
+    public Result<?> getFailedTasks() {
+        var failedTasks = scheduledTask.getFailedTasks();
+        var list = new java.util.ArrayList<>();
+        for (var record : failedTasks) {
+            var item = new java.util.HashMap<String, Object>();
+            item.put("date", record.getDate());
+            item.put("dayNumber", record.getDayNumber());
+            item.put("errorMsg", record.getErrorMsg());
+            item.put("retryCount", record.getRetryCount());
+            list.add(item);
+        }
+        return Result.ok(list);
+    }
+
+    /**
+     * Manually retry failed tasks.
+     * POST /api/admin/retry-failed-tasks
+     */
+    @PostMapping("/retry-failed-tasks")
+    public Result<?> retryFailedTasks() {
+        int success = scheduledTask.retryFailedTasks();
+        return Result.ok("重试完成 - 成功: " + success);
+    }
+
+    /**
+     * Clear failed tasks records.
+     * POST /api/admin/clear-failed-tasks
+     */
+    @PostMapping("/clear-failed-tasks")
+    public Result<?> clearFailedTasks() {
+        scheduledTask.clearFailedTasks();
+        return Result.ok("已清空所有失败任务记录");
+    }
+
+    /**
+     * Generate content for specific days (e.g., missing days).
+     * POST /api/admin/generate-days
+     * Body: {"days": [1, 2, 3, 5]}
+     */
+    @PostMapping("/generate-days")
+    public Result<?> generateDays(@RequestBody Map<String, Object> body) {
+        Object daysObj = body.get("days");
+        int[] days;
+        
+        if (daysObj instanceof List) {
+            List<?> list = (List<?>) daysObj;
+            days = new int[list.size()];
+            for (int i = 0; i < list.size(); i++) {
+                days[i] = ((Number) list.get(i)).intValue();
+            }
+        } else {
+            return Result.error("days 参数必须是数组");
+        }
+
+        scheduledTask.generateAllRemaining(); // Use the same logic
+        return Result.ok("已开始生成指定天数的内容，查看日志获取详情");
+    }
 }

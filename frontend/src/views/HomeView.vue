@@ -33,20 +33,23 @@ function reviewToday() {
 }
 
 onMounted(async () => {
-  await authStore.restoreSession()
+  // Restore session from localStorage
+  authStore.restoreSession()
+  
+  // If not logged in, redirect to login
   if (!authStore.isLoggedIn) {
     router.push('/login')
     return
   }
 
-  // Validate token by fetching user info first
-  if (authStore.token) {
-    try {
-      await authStore.fetchMe()
-    } catch {
-      // fetchMe will trigger redirect via interceptor
-      return
-    }
+  // Validate token by fetching user info
+  try {
+    await authStore.fetchMe()
+  } catch {
+    // Token invalid, redirect to login
+    authStore.clearAuth()
+    router.push('/login')
+    return
   }
 
   // Check if plan is configured (for child users)

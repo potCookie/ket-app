@@ -86,6 +86,17 @@ router.beforeEach(async (to, _from, next) => {
     if (!authStore.isLoggedIn) {
       return next('/login')
     }
+    
+    // Validate token on navigation (in case it expired)
+    if (!authStore.user) {
+      try {
+        await authStore.fetchMe()
+      } catch {
+        // Token invalid, redirect to login
+        authStore.clearAuth()
+        return next('/login')
+      }
+    }
   }
 
   next()

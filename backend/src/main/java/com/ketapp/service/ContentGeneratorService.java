@@ -119,21 +119,29 @@ public class ContentGeneratorService {
 
             // Generate audio for listening questions
             if (listeningData.has("questions")) {
+                int audioSuccess = 0;
+                int audioFailed = 0;
                 for (JsonNode q : listeningData.get("questions")) {
                     if (q.has("audio_text")) {
                         try {
                             audioService.generateAudio(q.get("audio_text").asText());
+                            audioSuccess++;
                         } catch (Exception e) {
-                            log.warn("Audio generation failed: {}", e.getMessage());
+                            log.warn("Audio generation failed for question: {}", e.getMessage());
+                            audioFailed++;
                         }
                     }
+                }
+                if (audioFailed > 0) {
+                    log.warn("Audio generation: {} succeeded, {} failed", audioSuccess, audioFailed);
                 }
             }
 
             return true;
         } catch (Exception e) {
-            log.error("Failed to generate content for day {}: {}", dayNumber, e.getMessage(), e);
-            return false;
+            log.error("Failed to generate content for day {} on date {}: {}", 
+                dayNumber, date, e.getMessage(), e);
+            throw new RuntimeException("Failed to generate content for day " + dayNumber + ": " + e.getMessage(), e);
         }
     }
 
