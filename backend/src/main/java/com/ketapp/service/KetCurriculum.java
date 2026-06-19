@@ -1,8 +1,6 @@
 package com.ketapp.service;
 
-import java.time.DayOfWeek;
 import java.time.LocalDate;
-import java.util.*;
 
 /**
  * KET A2 35-day study plan curriculum.
