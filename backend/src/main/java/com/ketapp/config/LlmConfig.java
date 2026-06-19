@@ -8,17 +8,17 @@ import org.springframework.stereotype.Component;
 @Component
 @ConfigurationProperties(prefix = "ket.llm")
 public class LlmConfig {
-    /** 是否启用LLM生成 */
+    /** Whether LLM generation is enabled */
     private boolean enabled = false;
-    /** OpenAI兼容的API端点 */
+    /** OpenAI-compatible API endpoint */
     private String apiUrl = "https://api.openai.com/v1/chat/completions";
-    /** API密钥（支持环境变量KET_LLM_API_KEY） */
+    /** API key (supports env var KET_LLM_API_KEY) */
     private String apiKey = "";
-    /** 模型名称 */
+    /** Model name */
     private String model = "gpt-4o-mini";
-    /** 每次请求的最大token数 */
+    /** Max tokens per request */
     private int maxTokens = 4096;
-    /** 生成温度 */
+    /** Generation temperature */
     private double temperature = 0.7;
 
     public boolean isConfigured() {

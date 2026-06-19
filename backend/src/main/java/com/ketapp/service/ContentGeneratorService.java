@@ -20,7 +20,8 @@ import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 
 /**
- * 通过网络抓取材料并结合课程模板自动生成每日KET学习内容
+ * Auto-generates daily KET learning content by scraping web materials
+ * and combining them with curriculum templates.
  */
 @Slf4j
 @Service
@@ -35,17 +36,17 @@ public class ContentGeneratorService {
     private static final Random RANDOM = ThreadLocalRandom.current();
 
     /**
-     * 为指定日期生成特定天数（1-35）的内容
-     * 如果生成成功则返回true
+     * Generate content for a specific day number (1-35) on a given date.
+     * Returns true if generation was successful.
      */
     public boolean generateDay(LocalDate date, int dayNumber) {
         int weekIdx = KetCurriculum.getWeekIndex(dayNumber);
         int dayIdx = KetCurriculum.getDayInWeekIndex(dayNumber);
 
-        // 检查是否已存在
+        // Check if already exists
         if (taskMapper.selectCount(
                 new LambdaQueryWrapper<Task>().eq(Task::getTaskDate, date)) > 0) {
-            log.info("日期 {} 的任务已存在，跳过。", date);
+            log.info("Task for date {} already exists, skipping.", date);
             return false;
         }
 
@@ -57,17 +58,17 @@ public class ContentGeneratorService {
         String theme = weekTheme[1] + " · " + dailyTopic[1];
 
         try {
-            // 首先尝试AI生成
+            // Attempt AI-powered generation first
             ObjectNode aiResult = llmGenerator.generateDailyContent(
                     weekIdx + 1, dayNumber,
                     dailyTopic[0], dailyTopic[1],
                     weekTheme, grammar[0], grammar[1],
                     vocab);
 
-            // 1. 词汇部分（始终从课程中获取）
+            // 1. Vocabulary section (always from curriculum)
             ObjectNode vocabData = generateVocabSection(vocab);
 
-            // 2-7. 尝试AI部分，失败则回退到模板
+            // 2-7. Try AI sections, fall back to template
             ObjectNode readingData;
             ObjectNode listeningData;
             ObjectNode grammarData;
@@ -76,7 +77,7 @@ public class ContentGeneratorService {
             String parentNote;
 
             if (aiResult != null) {
-                log.info("使用AI生成第{}天的内容", dayNumber);
+                log.info("Using AI-generated content for day {}", dayNumber);
                 readingData = extractOrFallback(aiResult, "reading",
                         () -> generateReadingSection(dailyTopic[0], dayNumber));
                 listeningData = extractOrFallback(aiResult, "listening",
@@ -88,7 +89,7 @@ public class ContentGeneratorService {
                         () -> generateWritingSection(dailyTopic, readingData, weekIdx, dayIdx));
                 parentNote = extractParentNote(aiResult, weekIdx, dayIdx, weekTheme, dailyTopic, grammar);
             } else {
-                log.info("使用模板生成第{}天的内容", dayNumber);
+                log.info("Using template-based generation for day {}", dayNumber);
                 readingData = generateReadingSection(dailyTopic[0], dayNumber);
                 listeningData = generateListeningSection(readingData, dayNumber);
                 grammarData = generateGrammarSection(grammar, vocab, dayNumber);
@@ -97,7 +98,7 @@ public class ContentGeneratorService {
                 parentNote = generateParentNote(weekIdx, dayIdx, weekTheme, dailyTopic, grammar);
             }
 
-            // 构建Task实体
+            // Build Task entity
             Task task = new Task();
             task.setTaskDate(date);
             task.setWeek(weekIdx + 1);
@@ -114,16 +115,16 @@ public class ContentGeneratorService {
             task.setParentNote(parentNote);
 
             taskMapper.insert(task);
-            log.info("为日期 {} 生成任务，主题: {}", date, theme);
+            log.info("Generated task for date: {}, theme: {}", date, theme);
 
-            // 为听力问题生成音频
+            // Generate audio for listening questions
             if (listeningData.has("questions")) {
                 for (JsonNode q : listeningData.get("questions")) {
                     if (q.has("audio_text")) {
                         try {
                             audioService.generateAudio(q.get("audio_text").asText());
                         } catch (Exception e) {
-                            log.warn("音频生成失败: {}", e.getMessage());
+                            log.warn("Audio generation failed: {}", e.getMessage());
                         }
                     }
                 }
@@ -131,16 +132,16 @@ public class ContentGeneratorService {
 
             return true;
         } catch (Exception e) {
-            log.error("生成第{}天内容失败: {}", dayNumber, e.getMessage(), e);
+            log.error("Failed to generate content for day {}: {}", dayNumber, e.getMessage(), e);
             return false;
         }
     }
 
-    // ==================== 各模块生成器 ====================
+    // ==================== Section Generators ====================
 
     private ObjectNode generateVocabSection(String[][] vocab) {
         ObjectNode node = objectMapper.createObjectNode();
-        node.put("group", vocab[0][1] + "相关"); // 例如："名字相关"
+        node.put("group", vocab[0][1] + "相关"); // e.g. "名字相关"
         ArrayNode words = objectMapper.createArrayNode();
         for (String[] w : vocab) {
             ObjectNode word = objectMapper.createObjectNode();
@@ -156,7 +157,7 @@ public class ContentGeneratorService {
     private ObjectNode generateReadingSection(String topicEn, int dayNumber) {
         ObjectNode node = objectMapper.createObjectNode();
 
-        // 尝试抓取阅读材料
+        // Try to scrape a reading passage
         String[] passageData = scrapeReadingPassage(topicEn, dayNumber);
 
         ObjectNode passage = objectMapper.createObjectNode();
@@ -165,7 +166,7 @@ public class ContentGeneratorService {
         passage.put("translation", passageData[2]);
         node.set("passage", passage);
 
-        // 从材料中生成3个理解题
+        // Generate 3 comprehension questions from the passage
         ArrayNode questions = objectMapper.createArrayNode();
         String[][] questionData = generateReadingQuestions(passageData[1]);
         for (String[] qd : questionData) {
@@ -186,7 +187,7 @@ public class ContentGeneratorService {
         ObjectNode node = objectMapper.createObjectNode();
         ArrayNode questions = objectMapper.createArrayNode();
 
-        // 创建5个基于阅读主题的简短听力场景
+        // Create 5 short listening scenarios based on the reading theme
         String passageText = readingData.get("passage").get("text").asText();
         String[] sentences = passageText.split("(?<=[.!?])\\s+");
 
@@ -197,9 +198,9 @@ public class ContentGeneratorService {
             String[] qd = generateListeningQuestion(sentence, i + 1);
             ObjectNode q = objectMapper.createObjectNode();
             q.put("id", i + 1);
-            q.put("scenario", qd[0]);      // 问题
-            q.put("translation", qd[1]);    // 中文翻译
-            q.put("audio_text", sentence);  // 要朗读的句子
+            q.put("scenario", qd[0]);      // question
+            q.put("translation", qd[1]);    // Chinese translation
+            q.put("audio_text", sentence);  // the sentence to speak
             ArrayNode opts = objectMapper.createArrayNode();
             for (String o : qd[2].split("\\|")) opts.add(o);
             q.set("options", opts);
@@ -217,16 +218,16 @@ public class ContentGeneratorService {
         node.put("point", grammar[0]);
         node.put("explanation", grammar[1]);
 
-        // 生成5个填空练习（使用词汇单词）
+        // Generate 5 fill-in-the-blank exercises using vocab words
         ArrayNode exercises = objectMapper.createArrayNode();
         ArrayNode answers = objectMapper.createArrayNode();
         ArrayNode analysis = objectMapper.createArrayNode();
 
         String[][] samples = generateGrammarExercises(grammar[0], vocab, dayNumber);
         for (String[] sample : samples) {
-            exercises.add(sample[0]); // 含空格的句子
-            answers.add(sample[1]);   // 答案
-            analysis.add(sample[2]);  // 解释
+            exercises.add(sample[0]); // sentence with blank
+            answers.add(sample[1]);   // answer
+            analysis.add(sample[2]);  // explanation
         }
 
         node.set("exercises", exercises);
@@ -239,12 +240,12 @@ public class ContentGeneratorService {
                                                 String[] dailyTopic, int weekIdx, int dayIdx) {
         ObjectNode node = objectMapper.createObjectNode();
 
-        // 使用6个词汇单词构建带空格的模板
+        // Build a template with blanks using 6 of the vocab words
         String[][] selectedVocab = pickRandomVocab(vocab, 6);
         String template = buildSpeakingTemplate(selectedVocab, dailyTopic, weekIdx, dayIdx);
         node.put("template", template);
 
-        // 关键短语
+        // Key phrases
         ArrayNode phrases = objectMapper.createArrayNode();
         for (int i = 0; i < Math.min(5, selectedVocab.length); i++) {
             ObjectNode p = objectMapper.createObjectNode();
@@ -266,7 +267,7 @@ public class ContentGeneratorService {
         String prompt = String.format("Write 3-5 sentences about %s. Try to use the words you learned today.", topicEn);
         node.put("prompt", prompt);
 
-        // 使用阅读材料的简短版本作为示例
+        // Use a short version of reading passage as sample
         String passage = readingData.get("passage").get("text").asText();
         String[] sentences = passage.split("(?<=[.!?])\\s+");
         StringBuilder sample = new StringBuilder();
@@ -290,20 +291,20 @@ public class ContentGeneratorService {
             dailyTopic[1], grammar[0]);
     }
 
-    // ==================== 网页抓取 ====================
+    // ==================== Web Scraping ====================
 
     private String[] scrapeReadingPassage(String topic, int dayNumber) {
-        // 尝试多个来源
+        // Try multiple sources
         String[] result = tryScrape(topic);
         if (result != null) return result;
 
-        // 回退：从模板生成
+        // Fallback: generate from template
         return generateFallbackPassage(topic, dayNumber);
     }
 
     private String[] tryScrape(String topic) {
         try {
-            // 搜索breakingnewsenglish.com的分级阅读
+            // Search breakingnewsenglish.com for graded readers
             String searchUrl = "https://breakingnewsenglish.com/search.html?q=" +
                     java.net.URLEncoder.encode(topic, "UTF-8");
             Document doc = Jsoup.connect(searchUrl)
@@ -315,13 +316,13 @@ public class ContentGeneratorService {
             for (Element link : links) {
                 String href = link.absUrl("href");
                 if (href.contains("breakingnewsenglish.com") && !href.contains("search")) {
-                    // 找到潜在文章，尝试获取内容
+                    // Found a potential article, try to get content
                     String[] article = scrapeArticle(href);
                     if (article != null) return article;
                 }
             }
         } catch (Exception e) {
-            log.debug("为话题 '{}' 抓取失败: {}", topic, e.getMessage());
+            log.debug("Scraping failed for topic '{}': {}", topic, e.getMessage());
         }
         return null;
     }
@@ -337,7 +338,7 @@ public class ContentGeneratorService {
             Elements paragraphs = doc.select("article p, .article p, #article p");
 
             if (paragraphs.isEmpty()) {
-                // 尝试通用段落选择
+                // Try generic paragraph selection
                 paragraphs = doc.select("p");
             }
 
@@ -355,7 +356,7 @@ public class ContentGeneratorService {
 
             if (text.length() < 100) return null;
 
-            // 简单的翻译说明（真实翻译需要API）
+            // Simple translation note (real translation would need an API)
             String translation = "（请参考中文翻译理解短文大意）";
 
             return new String[]{
@@ -368,12 +369,12 @@ public class ContentGeneratorService {
         }
     }
 
-    // ==================== 回退内容生成 ====================
+    // ==================== Fallback Content Generation ====================
 
     private String[] generateFallbackPassage(String topic, int dayNumber) {
-        // 从词汇和话题构建文章
+        // Build a passage from vocabulary and topic
         String[] passages = {
-            // 示例文章模板
+            // Sample passage template
             "Hello! Today we are learning about " + topic.toLowerCase() + ". "
             + "Many children enjoy learning new things every day. "
             + "It is important to practice English at home and at school. "
@@ -399,7 +400,7 @@ public class ContentGeneratorService {
         };
     }
 
-    // ==================== 问题生成器 ====================
+    // ==================== Question Generators ====================
 
     private String[][] generateReadingQuestions(String passage) {
         String[] sentences = passage.split("(?<=[.!?])\\s+");
@@ -409,12 +410,12 @@ public class ContentGeneratorService {
             String sentence = sentences[i].trim();
             if (sentence.length() < 20) continue;
 
-            // 根据句子结构生成WH问题和多项选择选项
+            // Generate a WH-question and multiple choice options
             String[] q = generateQuestionFromSentence(sentence);
             if (q != null) questions.add(q);
         }
 
-        // 如果不够，添加通用问题
+        // If not enough, add generic questions
         while (questions.size() < 3) {
             questions.add(new String[]{
                 "What is the main topic of this passage?",
@@ -430,7 +431,7 @@ public class ContentGeneratorService {
         String[] words = sentence.split("\\s+");
         if (words.length < 5) return null;
 
-        // 根据句子结构生成简单的WH问题
+        // Generate a simple WH-question based on sentence structure
         String lower = sentence.toLowerCase();
 
         if (lower.contains(" is ") || lower.contains(" are ")) {
@@ -440,10 +441,10 @@ public class ContentGeneratorService {
             String subject = sentence.substring(0, isIdx).trim();
             String predicate = sentence.substring(isIdx + (lower.contains(" is ") ? 4 : 5)).trim();
 
-            // 移除尾部标点
+            // Remove trailing period
             predicate = predicate.replaceAll("[.!?]$", "");
 
-            // 创建错误选项
+            // Create wrong options
             String wrong1 = predicate.length() > 3 ? predicate.substring(0, 1).toUpperCase() + "wrong1" : "Something else";
             String wrong2 = "Not mentioned";
 
@@ -464,7 +465,7 @@ public class ContentGeneratorService {
             };
         }
 
-        // 通用：询问句子内容
+        // Generic: ask about the sentence
         String keyWord = words[Math.min(words.length - 1, RANDOM.nextInt(words.length) + 2)].replaceAll("[.!?,]", "");
         return new String[]{
             "What does the passage say about " + keyWord + "?",
@@ -476,92 +477,211 @@ public class ContentGeneratorService {
     private String[] generateListeningQuestion(String sentence, int id) {
         String lower = sentence.toLowerCase();
 
-        // 基于句子含义的问题场景
-        String question;
-        String options;
-        String answer;
-        String keyWord;
+        // Question scenario based on sentence meaning
+        String scenario, translation, correctAnswer, wrong1, wrong2, keyWord;
 
-        if (lower.contains(" is ") || lower.contains(" are ")) {
-            int isIdx = lower.contains(" is ") ? lower.indexOf(" is ") : lower.indexOf(" are ");
-            String subject = sentence.substring(0, isIdx).trim();
-            String predicate = sentence.substring(isIdx + (lower.contains(" is ") ? 4 : 5)).trim();
-            predicate = predicate.replaceAll("[.!?]$", "");
-
-            question = "Listen: Is there " + (lower.contains(" are ") ? "are" : "is") + " " + subject + " in the passage?";
-            options = "A. Yes, there is|B. No, there isn't|C. Not mentioned";
-            answer = "A";
-            keyWord = subject;
-        } else if (lower.contains(" can ") || lower.contains(" can't ")) {
-            int canIdx = lower.contains(" can ") ? lower.indexOf(" can ") : lower.indexOf(" can't ");
-            String subject = sentence.substring(0, canIdx).trim();
-            String rest = sentence.substring(canIdx).trim();
-
-            question = "Listen: What does " + subject + " do in the passage?";
-            options = "A. " + rest + "|B. Nothing|C. Not mentioned";
-            answer = "A";
-            keyWord = rest;
+        if (lower.contains(" time ") || lower.contains(" o'clock")) {
+            scenario = "What time is mentioned?";
+            translation = "提到了什么时间？";
+            correctAnswer = "A. " + extractTime(sentence);
+            wrong1 = "B. 8:00";
+            wrong2 = "C. 9:30";
+            keyWord = extractTime(sentence);
+        } else if (lower.contains(" like ") || lower.contains(" likes ") || lower.contains(" love ")) {
+            scenario = "What does the person like?";
+            translation = "这个人喜欢什么？";
+            String thing = extractLikeObject(sentence);
+            correctAnswer = "A. " + thing;
+            wrong1 = "B. " + (thing.length() > 2 ? thing.charAt(0) + "xxx" : "Dancing");
+            wrong2 = "C. Reading";
+            keyWord = thing;
+        } else if (lower.contains(" color ") || lower.contains(" colour ")) {
+            scenario = "What colour is mentioned?";
+            translation = "提到了什么颜色？";
+            correctAnswer = "A. Red";
+            wrong1 = "B. Blue";
+            wrong2 = "C. Green";
+            keyWord = "red";
         } else {
+            // Generic listener question
             String[] words = sentence.split("\\s+");
-            String keyword = words[Math.min(words.length - 1, RANDOM.nextInt(words.length) + 2)].replaceAll("[.!?,]", "");
-
-            question = "Listen: Does the passage mention " + keyword + "?";
-            options = "A. Yes|B. No|C. Not mentioned";
-            answer = "A";
-            keyWord = keyword;
+            keyWord = words[Math.min(words.length-1, 3)].replaceAll("[.!?,]", "");
+            scenario = "What does the speaker say about " + keyWord + "?";
+            translation = "说话者关于" + keyWord + "说了什么？";
+            correctAnswer = "A. " + sentence.substring(0, Math.min(30, sentence.length()));
+            wrong1 = "B. Something different";
+            wrong2 = "C. Not mentioned";
         }
 
-        return new String[]{
-            question,
-            sentence,
-            options,
-            answer,
-            keyWord
-        };
-    }
-
-    // ==================== 辅助方法 ====================
-
-    private String[][] pickRandomVocab(String[][] vocab, int count) {
-        String[][] result = new String[count][];
-        Random random = new Random();
-        for (int i = 0; i < count; i++) {
-            result[i] = vocab[random.nextInt(vocab.length)];
-        }
-        return result;
-    }
-
-    private String buildSpeakingTemplate(String[][] selectedVocab, String[] dailyTopic, int weekIdx, int dayIdx) {
-        StringBuilder template = new StringBuilder();
-        template.append("Talk about ").append(dailyTopic[1]).append(".\n\n");
-        template.append("I like to ").append(selectedVocab[0][0]).append(" ... \n");
-        template.append("My favorite ").append(dailyTopic[0]).append(" is ").append(selectedVocab[1][0]).append(".\n");
-        template.append("I usually ").append(selectedVocab[2][0]).append(" in the ").append(selectedVocab[3][0]).append(".\n");
-        template.append("My friend ").append(selectedVocab[4][0]).append(" and I ").append(selectedVocab[5][0]).append(" together.\n");
-        return template.toString();
+        return new String[]{scenario, translation, correctAnswer + "|" + wrong1 + "|" + wrong2, "A", keyWord};
     }
 
     private String[][] generateGrammarExercises(String grammarPoint, String[][] vocab, int dayNumber) {
-        Random random = new Random();
-        String[][] exercises = new String[5][3];
+        List<String[]> exercises = new ArrayList<>();
 
-        // 生成5个填空练习
-        for (int i = 0; i < 5; i++) {
-            String[] v = vocab[random.nextInt(vocab.length)];
-            exercises[i][0] = "I " + v[0] + " ..."; // 句子含空格
-            exercises[i][1] = v[0]; // 答案
-            exercises[i][2] = "使用词汇 '" + v[0] + "' (" + v[1] + ")"; // 解释
+        if (grammarPoint.contains("am/is/are") || grammarPoint.contains("'to be'")) {
+            String[] subjects = {"I", "She", "They", "Tom and I", "My mother"};
+            String[] answersArr = {"am", "is", "are", "are", "is"};
+            String[] expl = {"I 搭配 am", "第三人称单数用 is", "复数用 are", "Tom and I = we，用 are", "My mother = she，用 is"};
+            for (int i = 0; i < 5; i++) {
+                exercises.add(new String[]{
+                    subjects[i] + " ___ a student.", answersArr[i], expl[i]
+                });
+            }
+        } else if (grammarPoint.contains("Present Simple")) {
+            String[] sents = {"I ___ up at 7 o'clock.", "She ___ to school every day.", "We ___ breakfast together.", "He ___ TV in the evening.", "They ___ in the park."};
+            String[] ans = {"get", "goes", "eat", "watches", "play"};
+            String[] exp = {"I / you / we / they 用原形", "he / she / it 加 -s/-es", "we 用原形", "he 加 -es", "they 用原形"};
+            for (int i = 0; i < 5; i++) {
+                exercises.add(new String[]{sents[i], ans[i], exp[i]});
+            }
+        } else if (grammarPoint.contains("Can")) {
+            String[] sents = {"I ___ swim very well.", "She ___ play the piano.", "___ you help me?", "He ___ run fast.", "They ___ speak English."};
+            String[] ans = {"can", "can", "Can", "can", "can"};
+            String[] exp = {"can + 动词原形", "can + 动词原形", "疑问句 Can 提前", "can + 动词原形", "can + 动词原形"};
+            for (int i = 0; i < 5; i++) {
+                exercises.add(new String[]{sents[i], ans[i], exp[i]});
+            }
+        } else if (grammarPoint.contains("Past Simple")) {
+            String[] sents = {"Yesterday I ___ (go) to the park.", "She ___ (eat) an apple.", "They ___ (play) football.", "He ___ (watch) TV.", "We ___ (visit) grandma."};
+            String[] ans = {"went", "ate", "played", "watched", "visited"};
+            String[] exp = {"go 的过去式是 went", "eat 的过去式是 ate", "规则动词加 -ed", "规则动词加 -ed", "规则动词加 -ed"};
+            for (int i = 0; i < 5; i++) {
+                exercises.add(new String[]{sents[i], ans[i], exp[i]});
+            }
+        } else {
+            // Generic exercises using vocab
+            for (int i = 0; i < 5 && i < vocab.length; i++) {
+                exercises.add(new String[]{
+                    "I like " + vocab[i][0] + ".", vocab[i][0], "用正确的单词填空"
+                });
+            }
         }
 
-        return exercises;
+        return exercises.toArray(new String[0][]);
+    }
+
+    // ==================== Helpers ====================
+
+    private String[][] pickRandomVocab(String[][] vocab, int count) {
+        List<String[]> list = new ArrayList<>(Arrays.asList(vocab));
+        Collections.shuffle(list, RANDOM);
+        return list.subList(0, Math.min(count, list.size())).toArray(new String[0][0]);
+    }
+
+    private String buildSpeakingTemplate(String[][] words, String[] dailyTopic, int weekIdx, int dayIdx) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("Hello! My name is _____. I am _____ years old. ");
+        sb.append("Today I want to talk about ").append(dailyTopic[0].toLowerCase()).append(". ");
+        for (int i = 0; i < words.length; i++) {
+            if (i == 0) sb.append("I like ").append(words[i][0]).append(". ");
+            else if (i == 1) sb.append("I also like ").append(words[i][0]).append(". ");
+            else if (i == 2) sb.append("My ").append(words[i][0]).append(" is _____. ");
+            else if (i == 3) sb.append("I can ").append(words[i][0]).append(". ");
+            else if (i == 4) sb.append("I have a ").append(words[i][0]).append(". ");
+            else sb.append("I enjoy ").append(words[i][0]).append(".");
+        }
+        return sb.toString().trim();
+    }
+
+    private String extractTime(String sentence) {
+        java.util.regex.Matcher m = java.util.regex.Pattern.compile("\\d{1,2}(:\\d{2})?\\s*(o'clock|am|pm)?").matcher(sentence);
+        return m.find() ? m.group() : "7:00";
+    }
+
+    private String extractLikeObject(String sentence) {
+        String lower = sentence.toLowerCase();
+        int idx = lower.indexOf(" likes ");
+        if (idx == -1) idx = lower.indexOf(" like ");
+        if (idx == -1) return "something";
+        String after = sentence.substring(idx + (lower.contains(" likes ") ? 7 : 6));
+        return after.split("[.,]")[0].trim();
+    }
+
+    // ==================== AI Content Extractors ====================
+
+    /**
+     * Extract a section from AI result, fall back to template generator if missing.
+     */
+    private ObjectNode extractOrFallback(ObjectNode ai, String section,
+                                          java.util.function.Supplier<ObjectNode> fallback) {
+        if (ai.has(section) && !ai.get(section).isNull()) {
+            return (ObjectNode) ai.get(section);
+        }
+        return fallback.get();
     }
 
     /**
-     * 确保今天的内容存在。如果不存在，则生成。
+     * Extract grammar from AI result, converting to our expected format.
+     */
+    private ObjectNode extractAiGrammar(ObjectNode ai, String[] grammar, String[][] vocab) {
+        if (!ai.has("grammar") || ai.get("grammar").isNull()) {
+            return generateGrammarSection(grammar, vocab, 0);
+        }
+        JsonNode aiGrammar = ai.get("grammar");
+        ObjectNode result = objectMapper.createObjectNode();
+        result.put("point", grammar[0]);
+        result.put("explanation", grammar[1]);
+
+        ArrayNode exercises = objectMapper.createArrayNode();
+        ArrayNode answers = objectMapper.createArrayNode();
+        ArrayNode analysis = objectMapper.createArrayNode();
+
+        if (aiGrammar.has("exercises") && aiGrammar.get("exercises").isArray()) {
+            for (JsonNode ex : aiGrammar.get("exercises")) {
+                String sentence = ex.has("sentence") ? ex.get("sentence").asText() : ex.asText();
+                String answer = ex.has("answer") ? ex.get("answer").asText() : "";
+                exercises.add(sentence);
+                answers.add(answer);
+            }
+        }
+        if (aiGrammar.has("analysis") && aiGrammar.get("analysis").isArray()) {
+            for (JsonNode a : aiGrammar.get("analysis")) {
+                analysis.add(a.asText());
+            }
+        }
+
+        // Pad to 5 if needed
+        while (exercises.size() < 5) {
+            exercises.add("Fill in the blank.");
+            answers.add("");
+            analysis.add("Review the grammar point above.");
+        }
+
+        result.set("exercises", exercises);
+        result.set("answers", answers);
+        result.set("analysis", analysis);
+        return result;
+    }
+
+    private String extractParentNote(ObjectNode ai, int weekIdx, int dayIdx,
+                                      String[] weekTheme, String[] dailyTopic, String[] grammar) {
+        if (ai.has("parent_note") && !ai.get("parent_note").isNull()) {
+            return ai.get("parent_note").asText();
+        }
+        return generateParentNote(weekIdx, dayIdx, weekTheme, dailyTopic, grammar);
+    }
+
+    /**
+     * Generate all 35 days of content starting from a base date.
+     */
+    public int generateAll(LocalDate startDate) {
+        int count = 0;
+        for (int day = 1; day <= 35; day++) {
+            LocalDate date = startDate.plusDays(day - 1);
+            if (generateDay(date, day)) {
+                count++;
+            }
+        }
+        return count;
+    }
+
+    /**
+     * Ensure content exists for today. If not, generate it.
      */
     public boolean ensureToday(LocalDate today, int dayNumber) {
         if (dayNumber < 1 || dayNumber > 35) {
-            log.info("第{}天超出了35天计划范围。", dayNumber);
+            log.info("Day {} is outside the 35-day plan.", dayNumber);
             return false;
         }
         return generateDay(today, dayNumber);

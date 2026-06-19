@@ -12,8 +12,8 @@ import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 
 /**
- * 每日运行的计划任务，用于自动生成KET学习内容
- * 检查每天明天的内容是否存在，如果不存在则生成
+ * Scheduled task that runs daily to auto-generate KET learning content.
+ * Checks each day if tomorrow's content exists, generates it if not.
  */
 @Slf4j
 @Component
@@ -24,15 +24,15 @@ public class ScheduledContentTask {
     private final ContentGeneratorService contentGenerator;
 
     /**
-     * 每天凌晨3点运行，为即将到来的日期生成内容
-     * 同时检查今天的内容是否需要生成（首次设置）
+     * Run every day at 3:00 AM to generate content for upcoming days.
+     * Also checks if today's content needs generation (first-time setup).
      */
     @Scheduled(cron = "0 0 3 * * *")
     public void dailyContentGeneration() {
-        log.info("=== 开始每日内容生成 ===");
+        log.info("=== Daily content generation started ===");
         LocalDate today = LocalDate.now();
 
-        // 从现有任务中查找计划开始日期
+        // Find the plan start date from existing tasks
         Task firstTask = taskMapper.selectOne(
             new LambdaQueryWrapper<Task>()
                 .orderByAsc(Task::getTaskDate)
@@ -51,25 +51,25 @@ public class ScheduledContentTask {
 
         if (todayDayNumber < 1) todayDayNumber = 1;
         if (todayDayNumber > 35) {
-            log.info("35天计划已完成。没有更多内容可生成。");
+            log.info("35-day plan completed. No more content to generate.");
             return;
         }
 
-        // 如果缺少今天的内容则生成
+        // Generate today if missing
         contentGenerator.ensureToday(today, todayDayNumber);
 
-        // 预生成下一天的内容
+        // Pre-generate only the next day
         int nextDay = todayDayNumber + 1;
         if (nextDay <= 35) {
             LocalDate nextDate = today.plusDays(1);
             contentGenerator.ensureToday(nextDate, nextDay);
         }
 
-        log.info("=== 每日内容生成完成 ===");
+        log.info("=== Daily content generation completed ===");
     }
 
     /**
-     * 手动触发：检查并生成所有剩余日期的内容
+     * Manual trigger: check and generate content for all remaining days
      */
     public void generateAllRemaining() {
         LocalDate today = LocalDate.now();
@@ -89,6 +89,6 @@ public class ScheduledContentTask {
             }
         }
 
-        log.info("生成了 {} 条新任务", generated);
+        log.info("Generated {} new tasks", generated);
     }
 }
