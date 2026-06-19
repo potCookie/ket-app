@@ -18,12 +18,9 @@ backend/target/
 # Sensitive config (contains API keys, DB passwords, JWT secret)
 backend/src/main/resources/application.yml
 
-# Uploaded audio files
-backend/audio/
-!backend/audio/.gitkeep
-
-# Uploaded avatars
-backend/avatars/
+# Audio and avatar uploads (user-generated content)
+audio/
+avatars/
 
 # Logs
 *.log
