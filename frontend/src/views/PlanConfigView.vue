@@ -97,20 +97,26 @@ onMounted(() => {
       <div class="form-card">
         <div class="form-group">
           <label class="form-label">📅 计划开始日期</label>
-          <input
+          <el-date-picker
             v-model="form.startDate"
             type="date"
-            class="form-input"
+            placeholder="选择开始日期"
+            style="width: 100%"
+            format="YYYY-MM-DD"
+            value-format="YYYY-MM-DD"
             @change="calcTotalDays"
           />
         </div>
 
         <div class="form-group">
           <label class="form-label">📅 计划结束日期</label>
-          <input
+          <el-date-picker
             v-model="form.endDate"
             type="date"
-            class="form-input"
+            placeholder="选择结束日期"
+            style="width: 100%"
+            format="YYYY-MM-DD"
+            value-format="YYYY-MM-DD"
             @change="calcTotalDays"
           />
         </div>
