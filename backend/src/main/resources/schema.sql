@@ -64,6 +64,7 @@ CREATE TABLE IF NOT EXISTS `study_log` (
     quiz_answers TEXT COMMENT 'JSON: user selected answer indices',
     checked_in BOOLEAN DEFAULT FALSE,
     stars_earned INT DEFAULT 0,
+    is_makeup TINYINT(1) DEFAULT 0 COMMENT '是否为补学:1=补学,0=正常学习',
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     INDEX idx_user_task (user_id, task_date),
     UNIQUE KEY uk_user_task_module (user_id, task_date, module)

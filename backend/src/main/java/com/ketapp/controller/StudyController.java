@@ -75,4 +75,16 @@ public class StudyController {
         Long userId = (Long) request.getAttribute("userId");
         return Result.ok(studyService.getHistory(userId));
     }
+
+    /**
+     * Makeup study: start a module for a historical date.
+     * POST /api/study/makeup
+     */
+    @PostMapping("/makeup")
+    public Result<StudyLog> makeup(@RequestBody StudyStartRequest req,
+                                    HttpServletRequest request) {
+        Long userId = (Long) request.getAttribute("userId");
+        return Result.ok(studyService.makeupStudy(userId,
+                LocalDate.parse(req.getTaskDate()), req.getModule()));
+    }
 }

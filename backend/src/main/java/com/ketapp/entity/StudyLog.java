@@ -21,6 +21,7 @@ public class StudyLog {
     private String quizAnswers;  // JSON: {"0":0,"1":2} - question index → selected option index
     private Boolean checkedIn;
     private Integer starsEarned;
+    private Boolean isMakeup;    // 是否为补学（true=补学，false=正常学习）
     @TableField(fill = FieldFill.INSERT)
     private LocalDateTime createdAt;
 }

@@ -36,6 +36,10 @@ function getDayLabel(item) {
     return item.date
   }
 }
+
+function handleMakeup(date) {
+  router.push(`/learn?date=${date}&makeup=true`)
+}
 </script>
 
 <template>
@@ -83,7 +87,9 @@ function getDayLabel(item) {
           </div>
         </div>
         <div class="h-right">
-          <span class="arrow">→</span>
+          <!-- 显示补学按钮：只有当该日期有任务且没有任何学习记录时 -->
+          <button v-if="item.modules === 5 && item.completed === 0" class="makeup-btn" @click.stop="handleMakeup(item.date)">补学</button>
+          <span v-else class="arrow">→</span>
         </div>
       </div>
     </div>
@@ -180,4 +186,23 @@ function getDayLabel(item) {
 .tag.star { background: #fff3e0; color: #e65100; }
 
 .arrow { color: #b0bec5; font-size: 20px; }
+
+.makeup-btn {
+  padding: 6px 14px;
+  border: none;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #ffecb3, #ffc107);
+  color: #e65100;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  margin-right: 8px;
+}
+
+.makeup-btn:hover {
+  background: linear-gradient(135deg, #ffe082, #ffca28);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(230, 81, 0, 0.2);
+}
 </style>

@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import { getTodayTask, getTaskDetail, getTaskByDate } from '../api/task.js'
-import { startModule, finishModule, submitQuiz, checkIn, getTodayLogs, uploadRecording, getTodayRecordings, getStudyLogs } from '../api/study.js'
+import { startModule, finishModule, submitQuiz, checkIn, getTodayLogs, uploadRecording, getTodayRecordings, getStudyLogs, makeupStudy } from '../api/study.js'
 import { getStats, getBadges } from '../api/stats.js'
 
 export const useTaskStore = defineStore('task', () => {
@@ -113,7 +113,7 @@ export const useTaskStore = defineStore('task', () => {
     }
   }
 
-  /** Load task + study logs for a specific date (for history review) */
+  /** Load task + study logs for a specific date (for history review or makeup) */
   async function fetchTaskByDate(dateStr) {
     taskLoading.value = true
     taskError.value = null
@@ -122,6 +122,10 @@ export const useTaskStore = defineStore('task', () => {
     todayRecordings.value = []
 
     try {
+      // Check if this is makeup study (from HistoryView with makeup=true)
+      const route = useRoute()
+      const isMakeup = route?.query?.makeup === 'true'
+      
       // 1. Get task summary for this date
       const overview = await getTaskByDate(dateStr)
       todayOverview.value = overview
@@ -183,6 +187,11 @@ export const useTaskStore = defineStore('task', () => {
   async function startModuleApi(moduleName) {
     if (!todayData.value) return
     await startModule(todayData.value.date, moduleName)
+  }
+
+  async function startMakeupModuleApi(moduleName) {
+    if (!todayData.value) return
+    await makeupStudy(todayData.value.date, moduleName)
   }
 
   async function finishModuleApi(moduleName, quizScore = null, quizTotal = null, answers = null) {
@@ -299,6 +308,7 @@ export const useTaskStore = defineStore('task', () => {
     fetchTaskByDate,
     fetchStats,
     startModuleApi,
+    startMakeupModuleApi,
     finishModuleApi,
     submitQuizApi,
     doCheckIn,

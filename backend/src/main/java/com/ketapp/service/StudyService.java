@@ -93,6 +93,38 @@ public class StudyService {
     }
 
     /**
+     * Makeup study: start a module for a historical date.
+     * Unlike normal study, this does not auto-check-in or update streak.
+     */
+    @Transactional
+    public StudyLog makeupStudy(Long userId, LocalDate taskDate, String module) {
+        // Check if already started
+        StudyLog existing = studyLogMapper.selectOne(
+                new LambdaQueryWrapper<StudyLog>()
+                        .eq(StudyLog::getUserId, userId)
+                        .eq(StudyLog::getTaskDate, taskDate)
+                        .eq(StudyLog::getModule, module));
+
+        if (existing != null) {
+            if (existing.getStartedAt() == null) {
+                existing.setStartedAt(LocalDateTime.now());
+                existing.setIsMakeup(true);
+                studyLogMapper.updateById(existing);
+            }
+            return existing;
+        }
+
+        StudyLog log = new StudyLog();
+        log.setUserId(userId);
+        log.setTaskDate(taskDate);
+        log.setModule(module);
+        log.setStartedAt(LocalDateTime.now());
+        log.setIsMakeup(true);  // Mark as makeup study
+        studyLogMapper.insert(log);
+        return log;
+    }
+
+    /**
      * Get study logs for a user on a specific date.
      */
     public List<StudyLog> getTodayLogs(Long userId, LocalDate taskDate) {

@@ -38,11 +38,12 @@ watch(() => taskStore.currentStep, (step) => {
 
 // On mount: fetch task data + start first module
 const historicalDate = ref('')
+const isMakeup = computed(() => route.query.makeup === 'true')
 
 onMounted(async () => {
   const dateParam = route.query.date
   if (dateParam) {
-    // Loading a historical date from the records page
+    // Loading a historical date from the records page (or makeup study)
     historicalDate.value = dateParam
     await taskStore.fetchTaskByDate(dateParam)
   } else if (!taskStore.todayData) {
@@ -52,8 +53,13 @@ onMounted(async () => {
   if (isReview.value) {
     await taskStore.fetchStudyLogs()
   }
+  // Start the first module - use makeup API if this is makeup study
   if (taskStore.currentStep && !isReview.value) {
-    taskStore.startModuleApi(taskStore.currentStep).catch(() => {})
+    if (isMakeup.value) {
+      taskStore.startMakeupModuleApi(taskStore.currentStep).catch(() => {})
+    } else {
+      taskStore.startModuleApi(taskStore.currentStep).catch(() => {})
+    }
   }
 })
 
@@ -110,7 +116,8 @@ async function finalizeAll() {
   if (completing.value) return
   completing.value = true
 
-  if (!isReview.value) {
+  // Skip check-in for review and makeup study
+  if (!skipCheckIn.value) {
     try {
       await taskStore.doCheckIn()
     } catch (e) {
@@ -126,6 +133,9 @@ async function finalizeAll() {
 function backHome() {
   router.push(historicalDate.value ? '/history' : '/home')
 }
+
+// Check if auto-check-in should be skipped (makeup study)
+const skipCheckIn = computed(() => isReview.value || isMakeup.value)
 
 // --- Computed ---
 const currentModuleLabel = computed(() =>
@@ -154,11 +164,15 @@ const currentStepIndex = computed(() =>
 
         <!-- 模块标题 -->
         <div class="learn-mod-title">
-          {{ currentModuleIcon }} {{ currentModuleLabel }}{{ isReview ? '回顾' : '学习' }}
+          {{ currentModuleIcon }} {{ currentModuleLabel }}{{ isReview ? '回顾' : (isMakeup ? '补学' : '学习') }}
         </div>
 
         <!-- 回顾模式提示 -->
-        <div v-if="historicalDate" class="review-banner">
+        <div v-if="historicalDate && isMakeup" class="review-banner">
+          📖 补学 {{ historicalDate }} 的学习内容<br/>
+          <span style="opacity:0.85">补学不计入连续打卡，但可以获得星星奖励</span>
+        </div>
+        <div v-else-if="historicalDate" class="review-banner">
           📖 正在查看 {{ historicalDate }} 的学习内容。不会重复记录。
         </div>
         <div v-else-if="isReview" class="review-banner">

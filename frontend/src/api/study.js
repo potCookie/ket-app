@@ -12,6 +12,10 @@ export function submitQuiz(taskDate, module, score, total, answers = null) {
   return api.post('/study/quiz/submit', { taskDate, module, score, total, answers })
 }
 
+export function makeupStudy(taskDate, module) {
+  return api.post('/study/makeup', { taskDate, module })
+}
+
 export function checkIn(date) {
   return api.post('/checkin', null, { params: { date } })
 }
