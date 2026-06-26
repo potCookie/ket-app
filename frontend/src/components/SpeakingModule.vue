@@ -44,16 +44,47 @@ async function toggleRecording() {
 
 async function startRecording() {
   try {
+    // Check if mediaDevices API is available
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+      uploadFailed.value = true
+      uploadErrorMsg.value = '当前浏览器不支持录音'
+      return
+    }
+
     const stream = await navigator.mediaDevices.getUserMedia({ audio: true })
-    mediaRecorder = new MediaRecorder(stream)
+
+    // Determine preferred mime type for Android WebView
+    const mimeType = MediaRecorder.isTypeSupported('audio/webm;codecs=opus')
+      ? 'audio/webm;codecs=opus'
+      : MediaRecorder.isTypeSupported('audio/webm')
+        ? 'audio/webm'
+        : 'audio/mp4'
+
+    const options = mimeType ? { mimeType } : {}
+    mediaRecorder = new MediaRecorder(stream, options)
     chunks = []
 
     mediaRecorder.ondataavailable = (e) => {
       if (e.data.size > 0) chunks.push(e.data)
     }
 
+    mediaRecorder.onerror = () => {
+      uploadFailed.value = true
+      uploadErrorMsg.value = '录音出错，请重试'
+      isRecording.value = false
+      stream.getTracks().forEach(t => t.stop())
+    }
+
     mediaRecorder.onstop = async () => {
-      currentBlob = new Blob(chunks, { type: 'audio/webm' })
+      currentBlob = new Blob(chunks, { type: mimeType || 'audio/webm' })
+
+      if (currentBlob.size === 0) {
+        uploadFailed.value = true
+        uploadErrorMsg.value = '未录制到音频'
+        stream.getTracks().forEach(t => t.stop())
+        return
+      }
+
       audioUrl.value = URL.createObjectURL(currentBlob)
       hasRecorded.value = true
       stream.getTracks().forEach(t => t.stop())
@@ -85,12 +116,13 @@ async function startRecording() {
     mediaRecorder.start()
     isRecording.value = true
   } catch (err) {
-    // Mock recording mode (no mic permission)
-    isRecording.value = true
-    setTimeout(() => {
-      isRecording.value = false
-      hasRecorded.value = true
-    }, 2000)
+    console.error('[Speaking] Failed to start recording:', err)
+    uploadFailed.value = true
+    uploadErrorMsg.value = err.name === 'NotAllowedError'
+      ? '麦克风权限被拒绝，请在系统设置中允许录音权限'
+      : err.name === 'NotFoundError'
+        ? '未检测到麦克风设备'
+        : '无法启动录音: ' + (err.message || '未知错误')
   }
 }
 
@@ -111,7 +143,11 @@ function playRecording() {
 
 function playHistoricRecording(rec) {
   const audio = new Audio()
-  audio.src = rec.fileUrl
+  // Resolve relative URL for Capacitor mode
+  const API_BASE = import.meta.env.VITE_API_BASE || '/api'
+  const SERVER_ORIGIN = API_BASE.replace(/\/api$/, '')
+  const fileUrl = rec.fileUrl?.startsWith('http') ? rec.fileUrl : SERVER_ORIGIN + (rec.fileUrl || '')
+  audio.src = fileUrl
   audio.play()
 }
 

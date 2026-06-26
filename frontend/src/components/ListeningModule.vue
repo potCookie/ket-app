@@ -36,11 +36,15 @@ let currentAudio = null
 // Cache: text -> url to avoid repeated hash computation
 const urlCache = {}
 
+// Use API base URL - in dev mode it's '/api' (proxied by Vite),
+// in Capacitor mode it's the full backend URL (e.g. http://192.168.1.8:18090/api)
+const API_BASE = import.meta.env.VITE_API_BASE || '/api'
+
 async function getAudioUrl(text) {
   if (urlCache[text]) return urlCache[text]
   // Same SHA-256 as backend AudioService
   const hash = await sha256(text)
-  const url = `/api/audio/${hash}.wav`
+  const url = `${API_BASE}/audio/${hash}.wav`
   urlCache[text] = url
   return url
 }
@@ -92,7 +96,7 @@ async function togglePlay(qId) {
     }
     audio.onerror = async () => {
       // File may not exist yet - trigger generation and retry
-      const resp = await fetch(`/api/audio/generate?text=${encodeURIComponent(text)}`)
+      const resp = await fetch(`${API_BASE}/audio/generate?text=${encodeURIComponent(text)}`)
       const result = await resp.json()
       if (result.url) {
         audio.src = result.url

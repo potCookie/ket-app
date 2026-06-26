@@ -1,5 +1,5 @@
 <script setup>
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import { useAuthStore } from '../stores/auth.js'
@@ -7,8 +7,21 @@ import { useAuthStore } from '../stores/auth.js'
 const router = useRouter()
 const authStore = useAuthStore()
 
+// Use API base URL - in dev mode it's '/api' (proxied by Vite),
+// in Capacitor mode it's the full backend URL
+const API_BASE = import.meta.env.VITE_API_BASE || '/api'
+const SERVER_ORIGIN = API_BASE.replace(/\/api$/, '')
+
 const avatarFileInput = ref(null)
 const uploadingAvatar = ref(false)
+
+// Resolve avatar URL: prepend server origin if avatar path is relative
+const avatarUrl = computed(() => {
+  const av = authStore.user?.avatar
+  if (!av) return null
+  if (av.startsWith('http')) return av
+  return SERVER_ORIGIN + av
+})
 
 const menuItems = [
   { icon: '📊', label: '学习报告', action: 'report' },
@@ -102,8 +115,8 @@ function userInitial() {
           @touchend="cancelLongPress"
         >
           <img
-            v-if="authStore.user?.avatar"
-            :src="authStore.user.avatar"
+            v-if="avatarUrl"
+            :src="avatarUrl"
             class="avatar-img"
             alt="头像"
           />
