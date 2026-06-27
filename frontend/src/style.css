@@ -27,8 +27,15 @@ body {
   background: var(--bg);
   color: var(--text-primary);
   min-height: 100vh;
+  min-height: -webkit-fill-available;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  /* Safe area handled by .app-root, not on body */
+}
+
+/* Ensure background covers entire screen including safe areas */
+html {
+  background: var(--bg);
 }
 
 /* 移动端禁止长按选择 */

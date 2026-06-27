@@ -58,6 +58,8 @@ function switchTab(path) {
   max-width: 480px;
   margin: 0 auto;
   box-shadow: 0 0 40px rgba(0, 0, 0, 0.08);
+  /* Status bar safe area padding */
+  padding-top: env(safe-area-inset-top, 0px);
 }
 
 .tab-bar {
@@ -72,7 +74,7 @@ function switchTab(path) {
   box-shadow: 0 -2px 12px rgba(0, 0, 0, 0.06);
   padding: 4px 0 8px;
   z-index: 100;
-  padding-bottom: env(safe-area-inset-bottom);
+  padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 8px);
 }
 
 .tab-item {
